@@ -138,6 +138,7 @@ export const Game: React.FC = () => {
     };
 
 
+    const random = Math.random();
     // vérifier si le mouvement est valide
     if (currentIndex + 1 < currentPath.length && 
         nextExpectedPosition.x === currentPath[currentIndex + 1].x && 
@@ -148,23 +149,24 @@ export const Game: React.FC = () => {
       setScore(score + 1); // score + 1
 
       if (currentIndex + 1 === currentPath.length - 1) {
-        setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
+        // il a réussit !
 
-        // une chance sur 3 d'augmenter le pathLength de 1, 2 chances sur 3 de le laisser tel quel
-        const random = Math.random();
-
+        // une chance sur 3 d'augmenter le speed pathLength de 1, 2 chances sur 3 de le laisser tel quel
         if (random < 0.33) {
+          setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
           setPathLength(prevLength => Math.min(prevLength + 1, 15));
         }
 
-        // il a réussit !
-        console.log("Chemin complété avec succès !");
         setTimeout(() => { alert('nice'); resetGame(); }, 20);
       }
     } else {
       // il a raté mdr
-      console.log("Mouvement invalide !");
-      setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500));
+      setPathLength(prevLength => Math.max(prevLength - 1, 3));
+      
+      // une chance sur 3 de reduire le speed
+      if (random < 0.33)
+        setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500)); // ralentir la démo
+
       setTimeout(() => { alert('nope'); resetGame(); }, 20); 
     }
   }, [isDemoPlaying, gameOver, currentPath, currentIndex, score]);
