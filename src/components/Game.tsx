@@ -21,7 +21,7 @@ export const Game: React.FC = () => {
   // const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('highScoreMemorio') || 0));
   const [gameOver, setGameOver] = useState(false);
   const [pathLength, setPathLength] = useState(3);
-  const [demoDelay, setDemoDelay] = useState(950);
+  const [demoDelay, setDemoDelay] = useState(500);
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
@@ -77,25 +77,27 @@ export const Game: React.FC = () => {
         });
   
         setTimeout(() => {
-          setGrid((prevGrid) => {
-            const newGrid = prevGrid.map(row => [...row]);
-            if (newGrid[nextSegment.y][nextSegment.x] !== 'start') {
-              newGrid[nextSegment.y][nextSegment.x] = 'back';
-            }
-            return newGrid;
-          });
-        }, demoDelay); // délai plus long pour delete derniere fleche
-  
-        demoIndex++;
-  
-        if (demoIndex < path.length) {
-          setTimeout(showNextArrow, demoDelay - (demoDelay / 2)); // delai avant de montrer fleche suivante
-        } else {
-          setIsDemoPlaying(false);
-        }
+          
+          setTimeout(() => {
+            setGrid((prevGrid) => {
+              const newGrid = prevGrid.map(row => [...row]);
+              if (newGrid[nextSegment.y][nextSegment.x] !== 'start')
+                newGrid[nextSegment.y][nextSegment.x] = 'back';
+              return newGrid;
+            });
+          }, demoDelay + (demoDelay / 10));
+          
+          demoIndex++;
+          if (demoIndex < path.length) {
+            setTimeout(showNextArrow, demoDelay - (demoDelay / 2));
+          } else {
+            setTimeout(() => {
+              setIsDemoPlaying(false);
+            }, demoDelay + (demoDelay / 5));
+          }
+        }, demoDelay / 2);
       }
-    };
-  
+   };
     showNextArrow();
   };
 
@@ -146,15 +148,13 @@ export const Game: React.FC = () => {
       setScore(score + 1); // score + 1
 
       if (currentIndex + 1 === currentPath.length - 1) {
-        setDemoDelay(prevDelay => Math.max(prevDelay - 50, 250)); // accélérer la démo
+        setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
 
-        // une chance sur 3 d'augmenter le pathLength de 1, une chance sur 3 de le réduire de 1, une chance sur 3 de le laisser tel quel
+        // une chance sur 3 d'augmenter le pathLength de 1, 2 chances sur 3 de le laisser tel quel
         const random = Math.random();
 
         if (random < 0.33) {
           setPathLength(prevLength => Math.min(prevLength + 1, 15));
-        } else if (random < 0.66) {
-          setPathLength(prevLength => Math.max(prevLength - 1, 5));
         }
 
         // il a réussit !
@@ -164,6 +164,7 @@ export const Game: React.FC = () => {
     } else {
       // il a raté mdr
       console.log("Mouvement invalide !");
+      setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500));
       setTimeout(() => { alert('nope'); resetGame(); }, 20); 
     }
   }, [isDemoPlaying, gameOver, currentPath, currentIndex, score]);
