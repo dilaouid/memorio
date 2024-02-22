@@ -20,6 +20,8 @@ export const Game: React.FC = () => {
   const [score, setScore] = useState(0);
   // const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('highScoreMemorio') || 0));
   const [gameOver, setGameOver] = useState(false);
+  const [pathLength, setPathLength] = useState(3);
+  const [demoDelay, setDemoDelay] = useState(950);
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
@@ -31,7 +33,7 @@ export const Game: React.FC = () => {
   }, []);
 
   const resetGame = () => {
-    const path = generatePath(7, 2);
+    const path = generatePath(7, 7, pathLength);
     const initialGrid = generateInitialGrid(7, 7, path); // Passez le chemin ici
     setGrid(initialGrid);
     setCurrentPath(path);
@@ -42,7 +44,7 @@ export const Game: React.FC = () => {
     // playStart();
     setTimeout(() => {
         playDemo(path, setGrid, setIsDemoPlaying);
-    }, 1000);
+    }, demoDelay);
   };
 
   const updateUserMoveOnGrid = useCallback((nextPosition: { x: number, y: number }, direction: GridValue) => {
@@ -82,12 +84,12 @@ export const Game: React.FC = () => {
             }
             return newGrid;
           });
-        }, (demoIndex + 1) < path.length ? 500 : 600); // délai plus long pour delete derniere fleche
+        }, demoDelay); // délai plus long pour delete derniere fleche
   
         demoIndex++;
   
         if (demoIndex < path.length) {
-          setTimeout(showNextArrow, 250); // delai avant de montrer fleche suivante
+          setTimeout(showNextArrow, demoDelay - (demoDelay / 2)); // delai avant de montrer fleche suivante
         } else {
           setIsDemoPlaying(false);
         }
@@ -133,6 +135,7 @@ export const Game: React.FC = () => {
       y: lastConfirmedPosition.y + moveDirection.y
     };
 
+
     // vérifier si le mouvement est valide
     if (currentIndex + 1 < currentPath.length && 
         nextExpectedPosition.x === currentPath[currentIndex + 1].x && 
@@ -143,16 +146,25 @@ export const Game: React.FC = () => {
       setScore(score + 1); // score + 1
 
       if (currentIndex + 1 === currentPath.length - 1) {
+        setDemoDelay(prevDelay => Math.max(prevDelay - 50, 250)); // accélérer la démo
+
+        // une chance sur 3 d'augmenter le pathLength de 1, une chance sur 3 de le réduire de 1, une chance sur 3 de le laisser tel quel
+        const random = Math.random();
+
+        if (random < 0.33) {
+          setPathLength(prevLength => Math.min(prevLength + 1, 15));
+        } else if (random < 0.66) {
+          setPathLength(prevLength => Math.max(prevLength - 1, 5));
+        }
+
         // il a réussit !
         console.log("Chemin complété avec succès !");
-        alert('nice')
-        resetGame();
+        setTimeout(() => { alert('nice'); resetGame(); }, 20);
       }
     } else {
       // il a raté mdr
       console.log("Mouvement invalide !");
-      alert('nope')
-      resetGame();
+      setTimeout(() => { alert('nope'); resetGame(); }, 20); 
     }
   }, [isDemoPlaying, gameOver, currentPath, currentIndex, score]);
 

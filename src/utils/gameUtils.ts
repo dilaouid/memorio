@@ -24,7 +24,7 @@ export const generateInitialGrid = (rows: number, cols: number, path: {x: number
  * @param grid Le plateau de jeu
  * @returns Le chemin généré sous forme d'une liste de coordonnées {x, y}
 */
-export const generatePath = (rows: number, cols: number): {x: number, y: number}[] => {
+export const generatePath = (rows: number, cols: number, pathLength: number): {x: number, y: number}[] => {
     // on commence par faire le start du chemin
     const startX = Math.floor(Math.random() * cols);
     const startY = Math.floor(Math.random() * rows);
@@ -51,10 +51,7 @@ export const generatePath = (rows: number, cols: number): {x: number, y: number}
         );
     };
   
-    // nombre de cases max pour le chemin
-    const maxPathLength = 10;
-  
-    while (path.length < maxPathLength) {
+    while (path.length < pathLength) {
       const validMoves = getValidMoves(currentX, currentY, path);
       if (validMoves.length === 0) {
         break; // dès que c'est plus possbiel on arrête
