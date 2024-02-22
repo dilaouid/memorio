@@ -21,7 +21,7 @@ export const Game: React.FC = () => {
   // const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('highScoreMemorio') || 0));
   const [gameOver, setGameOver] = useState(false);
   const [pathLength, setPathLength] = useState(3);
-  const [demoDelay, setDemoDelay] = useState(500);
+  const [demoDelay, setDemoDelay] = useState(600);
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
