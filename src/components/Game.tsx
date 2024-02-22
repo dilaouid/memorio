@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// import useSound from 'use-sound';
+import useSound from 'use-sound';
 
 import { Board } from './Board';
 import { generateInitialGrid, generatePath, getArrowForPathSegment } from '../utils/gameUtils';
@@ -11,9 +11,10 @@ import { ScorePopupProps } from '../types/ScorePopupProps';
 import ScorePopup from './ScorePopup';
 
 // je dois encore trouver ces fichiers plus tard
-/* import startSound from '../assets/start.mp3';
-import validSound from '../assets/valid.mp3';
-import invalidSound from '../assets/invalid.mp3'; */
+import startSound from '../assets/sfx/start.wav';
+import validSound from '../assets/sfx/valid.wav';
+import flipSound from '../assets/sfx/flip.wav';
+import invalidSound from '../assets/sfx/invalid.wav';
 
 export const Game: React.FC = () => {
   const [grid, setGrid] = useState<(GridValue)[][]>([]);
@@ -32,9 +33,10 @@ export const Game: React.FC = () => {
 
   const [popups, setPopups] = useState<ScorePopupProps[]>([]);
   
-  /* const [playStart] = useSound(startSound);
+  const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
-  const [playInvalid] = useSound(invalidSound); */
+  const [playFlip] = useSound(flipSound);
+  const [playInvalid] = useSound(invalidSound);
 
   // Initialiser le jeu
   useEffect(() => {
@@ -54,6 +56,7 @@ export const Game: React.FC = () => {
     if (status === 'demo' || status === 'success' || status === 'error') {
       setIsFreeze(true);
     } else {
+      playStart();
       const timer = setTimeout(() => {
         setIsFreeze(false)
       }, 200);
@@ -220,6 +223,7 @@ export const Game: React.FC = () => {
         nextExpectedPosition.x === currentPath[currentIndex + 1].x && 
         nextExpectedPosition.y === currentPath[currentIndex + 1].y) {
       // c'est valide il peut bouger
+      playFlip();
       updateUserMoveOnGrid(nextExpectedPosition, direction);
       setCurrentIndex(currentIndex + 1);
 
@@ -238,6 +242,7 @@ export const Game: React.FC = () => {
         }
 
         setStatus('success');
+        playValid();
         setTimeout(() => {
           resetGame();
         }, 800);
@@ -255,6 +260,7 @@ export const Game: React.FC = () => {
       if (random < 0.33)
         setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500)); // ralentir la démo
       setStatus('error');
+      playInvalid();
       setTimeout(() => {
         resetGame();
       }, 800); 
