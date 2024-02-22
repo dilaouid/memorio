@@ -1,11 +1,21 @@
+import { GridValue } from "../types/GridValue";
+
+type EmptyGrid = ('back' | 'start')[][];
+
 /**
  * Génère un plateau de jeu initial rempli des cases non révélées
  * @param rows
  * @param cols
  * @returns Un tableau 2D initialisé avec 'back' pour toutes les cases
 */
-export const generateInitialGrid = (rows: number, cols: number): ('back')[][] => {
-    return Array.from({ length: rows }, () => Array.from({ length: cols }, () => 'back'));
+export const generateInitialGrid = (rows: number, cols: number, path: {x: number, y: number}[]): ('back' | 'start')[][] => {
+    let grid: EmptyGrid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 'back'));
+
+    const startX = path[0].x;
+    const startY = path[0].y;
+    grid[startY][startX] = 'start';
+
+    return grid;
 };
   
 
@@ -24,25 +34,28 @@ export const generatePath = (rows: number, cols: number): {x: number, y: number}
     let currentY = startY;
   
     const pathLength = 5;
-    for (let i = 0; i < pathLength; i++) {
-      const direction = Math.floor(Math.random() * 4); // 0: haut, 1: droite, 2: bas, 3: gauche
-      switch (direction) {
-        case 0: // haut
-          if (currentY > 0) currentY -= 1;
-          break;
-        case 1: // droite
-          if (currentX < cols - 1) currentX += 1;
-          break;
-        case 2: // bas
-          if (currentY < rows - 1) currentY += 1;
-          break;
-        case 3: // gauche
-          if (currentX > 0) currentX -= 1;
-          break;
-      }
-      path.push({x: currentX, y: currentY});
+    const getPossibleMoves = (currentX: number, currentY: number, path: {x: number, y: number}[]) => {
+        const moves = [];
+        if (currentY > 0 && !path.some(p => p.x === currentX && p.y === currentY - 1))
+            moves.push({x: currentX, y: currentY - 1}); // Haut
+        if (currentY < rows - 1 && !path.some(p => p.x === currentX && p.y === currentY + 1))
+            moves.push({x: currentX, y: currentY + 1}); // Bas
+        if (currentX > 0 && !path.some(p => p.x === currentX - 1 && p.y === currentY))
+            moves.push({x: currentX - 1, y: currentY}); // Gauche
+        if (currentX < cols - 1 && !path.some(p => p.x === currentX + 1 && p.y === currentY))
+            moves.push({x: currentX + 1, y: currentY}); // Droite
+        return moves;
+    };
+
+    while (path.length < pathLength) {
+        const possibleMoves = getPossibleMoves(currentX, currentY, path);
+        if (possibleMoves.length === 0) break;
+        const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        path.push(move);
+        currentX = move.x;
+        currentY = move.y;
     }
-  
+
     return path;
 };
   
@@ -63,4 +76,12 @@ export const validateMove = (
   
     const nextStep = currentPath[currentIndex];
     return nextStep.x === playerMove.x && nextStep.y === playerMove.y;
+};
+
+export const getArrowForPathSegment = (start: {x: number, y: number}, end: {x: number, y: number}): GridValue => {
+    if (start.x < end.x) return 'right';
+    if (start.x > end.x) return 'left';
+    if (start.y < end.y) return 'bottom';
+    if (start.y > end.y) return 'top';
+    return 'back';
 };
