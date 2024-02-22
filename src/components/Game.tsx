@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Board } from './Board';
 import { generateInitialGrid, generatePath, getArrowForPathSegment } from '../utils/gameUtils';
 
-import useInterval from '../hooks/useInterval';
 import { GridValue } from '../types/GridValue';
 import { LampStatus } from '../types/LampStatus';
 import StatusLamp from './StatusLamp';
@@ -25,6 +24,7 @@ export const Game: React.FC = () => {
   const [pathLength, setPathLength] = useState(3);
   const [demoDelay, setDemoDelay] = useState(600);
   const [status, setStatus] = useState<LampStatus>('yourTurn');
+  const [isFreeze, setIsFreeze] = useState(false);
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
@@ -42,6 +42,17 @@ export const Game: React.FC = () => {
       setStatus('demo');
     }
   }, [isDemoPlaying]);
+
+  useEffect(() => {
+    if (status === 'demo' || status === 'success' || status === 'error') {
+      setIsFreeze(true);
+    } else {
+      const timer = setTimeout(() => {
+        setIsFreeze(false)
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
 
   const resetGame = () => {
     const path = generatePath(7, 7, pathLength);
@@ -116,7 +127,7 @@ export const Game: React.FC = () => {
 
   // Gestion des touches du clavier
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (isDemoPlaying || gameOver) return; // Ne rien faire si la démo est en cours ou le jeu est terminé
+    if (isDemoPlaying || gameOver || isFreeze) return; // impossible de bouger
     
     let direction: GridValue | null = null;
     let moveDirection: { x: number, y: number } | null = null;
@@ -167,9 +178,11 @@ export const Game: React.FC = () => {
           setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
           setPathLength(prevLength => Math.min(prevLength + 1, 15));
         }
-        setStatus('success');
 
-        setTimeout(() => { alert('nice'); resetGame(); }, 20);
+        setStatus('success');
+        setTimeout(() => {
+          resetGame();
+        }, 800);
       }
     } else {
       // il a raté mdr
@@ -179,22 +192,17 @@ export const Game: React.FC = () => {
       if (random < 0.33)
         setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500)); // ralentir la démo
       setStatus('error');
-      setTimeout(() => { alert('nope'); resetGame(); }, 20); 
+      setTimeout(() => {
+        resetGame();
+      }, 800); 
     }
-  }, [isDemoPlaying, gameOver, currentPath, currentIndex, score]);
+  }, [isDemoPlaying, gameOver, currentPath, currentIndex, score, isFreeze]);
 
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleKeyPress]);
-
-  useInterval(() => {
-    if (isDemoPlaying) {
-        
-    }
-  }, 1000);
-
 
   return (
     <div className="game-container">
