@@ -9,14 +9,14 @@ body, #root {
   
 .board {
     display: grid;
-    grid-template-columns: repeat(10, 70px);
-    grid-template-rows: repeat(10, 70px);
+    grid-template-columns: repeat(7, 80px);
+    grid-template-rows: repeat(7, 80px);
     gap: 1px;
 }
   
 .tile {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     background-size: cover;
     margin: 0;
     padding: 0;
