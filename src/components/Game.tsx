@@ -25,6 +25,8 @@ export const Game: React.FC = () => {
   const [demoDelay, setDemoDelay] = useState(600);
   const [status, setStatus] = useState<LampStatus>('yourTurn');
   const [isFreeze, setIsFreeze] = useState(false);
+
+  const [startRoundTime, setStartRoundTime] = useState<Date | null>(null);
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
@@ -37,6 +39,7 @@ export const Game: React.FC = () => {
 
   useEffect(() => {
     if (!isDemoPlaying) {
+      setStartRoundTime(new Date());
       setStatus('yourTurn');
     } else {
       setStatus('demo');
@@ -56,17 +59,46 @@ export const Game: React.FC = () => {
 
   const resetGame = () => {
     const path = generatePath(7, 7, pathLength);
-    const initialGrid = generateInitialGrid(7, 7, path); // Passez le chemin ici
+    const initialGrid = generateInitialGrid(7, 7, path);
+    setStartRoundTime(null);
     setGrid(initialGrid);
     setCurrentPath(path);
     setCurrentIndex(0);
     setIsDemoPlaying(true);
-    setScore(0);
     setGameOver(false);
     // playStart();
     setTimeout(() => {
         playDemo(path, setGrid, setIsDemoPlaying);
     }, demoDelay);
+  };
+
+  const calculateScore = () => {
+    if (!startRoundTime) return 0;
+
+    const endTime = new Date();
+    const timeTaken = (endTime.getTime() - startRoundTime.getTime()) / 1000;
+    const timeLimit = 10;
+    const pathLengthFactor = Math.max(pathLength, 1); // prendre en compte la longueur du chemin
+
+    // calcul du score en fonction du temps restant et de la longueur du chemin
+    let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit), 0);
+    score *= pathLengthFactor;
+    score = Math.floor(score);
+
+    console.log(`Score for this round: ${score}`);
+    return score;
+  };
+
+  const failPenalty = () => {
+    const maxScoreForPath = 100;
+    const penaltyPercent = 25;
+    const pathLengthFactor = Math.max(pathLength, 1);
+    
+    // Calcul de la pénalité
+    let penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
+  
+    console.log(`Penalty for this round: -${penalty}`);
+    return penalty;
   };
 
   const updateUserMoveOnGrid = useCallback((nextPosition: { x: number, y: number }, direction: GridValue) => {
@@ -168,10 +200,13 @@ export const Game: React.FC = () => {
       // c'est valide il peut bouger
       updateUserMoveOnGrid(nextExpectedPosition, direction);
       setCurrentIndex(currentIndex + 1);
-      setScore(score + 1); // score + 1
 
       if (currentIndex + 1 === currentPath.length - 1) {
         // il a réussit !
+        const roundScore = calculateScore();
+        setScore(prevScore => prevScore + roundScore);
+
+        console.log(`Score: ${score}`);
 
         // une chance sur 3 d'augmenter le speed pathLength de 1, 2 chances sur 3 de le laisser tel quel
         if (random < 0.33) {
@@ -187,6 +222,10 @@ export const Game: React.FC = () => {
     } else {
       // il a raté mdr
       setPathLength(prevLength => Math.max(prevLength - 1, 3));
+      const roundPenalty = failPenalty();
+
+      setScore((prevScore) => Math.max(prevScore - roundPenalty, 0));
+      console.log(`Total score after penalty: ${score - roundPenalty}`);
       
       // une chance sur 3 de reduire le speed
       if (random < 0.33)
