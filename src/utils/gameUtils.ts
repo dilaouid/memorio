@@ -25,6 +25,7 @@ export const generateInitialGrid = (rows: number, cols: number, path: {x: number
  * @returns Le chemin généré sous forme d'une liste de coordonnées {x, y}
 */
 export const generatePath = (rows: number, cols: number): {x: number, y: number}[] => {
+    // on commence par faire le start du chemin
     const startX = Math.floor(Math.random() * cols);
     const startY = Math.floor(Math.random() * rows);
     const path = [{x: startX, y: startY}];
@@ -33,29 +34,39 @@ export const generatePath = (rows: number, cols: number): {x: number, y: number}
     let currentX = startX;
     let currentY = startY;
   
-    const pathLength = 5;
-    const getPossibleMoves = (currentX: number, currentY: number, path: {x: number, y: number}[]) => {
-        const moves = [];
-        if (currentY > 0 && !path.some(p => p.x === currentX && p.y === currentY - 1))
-            moves.push({x: currentX, y: currentY - 1}); // Haut
-        if (currentY < rows - 1 && !path.some(p => p.x === currentX && p.y === currentY + 1))
-            moves.push({x: currentX, y: currentY + 1}); // Bas
-        if (currentX > 0 && !path.some(p => p.x === currentX - 1 && p.y === currentY))
-            moves.push({x: currentX - 1, y: currentY}); // Gauche
-        if (currentX < cols - 1 && !path.some(p => p.x === currentX + 1 && p.y === currentY))
-            moves.push({x: currentX + 1, y: currentY}); // Droite
-        return moves;
+    const getValidMoves = (currentX: number, currentY: number, path: {x: number, y: number}[]) => {
+      const directions = [
+        { x: 0, y: -1 }, // haut
+        { x: 1, y: 0 }, // droite
+        { x: 0, y: 1 }, // bas
+        { x: -1, y: 0 } // gauche
+      ];
+  
+      return directions
+        .map(dir => ({ x: currentX + dir.x, y: currentY + dir.y }))
+        .filter(pos => 
+          pos.x >= 0 && pos.x < cols &&
+          pos.y >= 0 && pos.y < rows &&
+          !path.some(p => p.x === pos.x && p.y === pos.y) // ne pas reproduire les pas précédents
+        );
     };
+  
+    // nombre de cases max pour le chemin
+    const maxPathLength = 10;
+  
+    while (path.length < maxPathLength) {
+      const validMoves = getValidMoves(currentX, currentY, path);
+      if (validMoves.length === 0) {
+        break; // dès que c'est plus possbiel on arrête
+      }
 
-    while (path.length < pathLength) {
-        const possibleMoves = getPossibleMoves(currentX, currentY, path);
-        if (possibleMoves.length === 0) break;
-        const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-        path.push(move);
-        currentX = move.x;
-        currentY = move.y;
+      // en attendant, on choisit un mouvement random
+      const nextMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+      path.push(nextMove);
+      currentX = nextMove.x;
+      currentY = nextMove.y;
     }
-
+  
     return path;
 };
   
