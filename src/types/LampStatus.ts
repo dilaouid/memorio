@@ -1,0 +1,1 @@
+export type LampStatus = 'demo' | 'error' | 'success' | 'yourTurn';

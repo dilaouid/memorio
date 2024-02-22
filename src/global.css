@@ -9,6 +9,13 @@ body, #root {
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+
+.game-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
   
 .board {
     display: grid;
@@ -52,4 +59,10 @@ body, #root {
   
 .back {
     transform: rotateY(180deg);
+}
+
+.status-lamp {
+    position: absolute;
+    right: -80px;
+    top: 300px;
 }

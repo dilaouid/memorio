@@ -6,6 +6,8 @@ import { generateInitialGrid, generatePath, getArrowForPathSegment } from '../ut
 
 import useInterval from '../hooks/useInterval';
 import { GridValue } from '../types/GridValue';
+import { LampStatus } from '../types/LampStatus';
+import StatusLamp from './StatusLamp';
 
 // je dois encore trouver ces fichiers plus tard
 /* import startSound from '../assets/start.mp3';
@@ -22,6 +24,7 @@ export const Game: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [pathLength, setPathLength] = useState(3);
   const [demoDelay, setDemoDelay] = useState(600);
+  const [status, setStatus] = useState<LampStatus>('yourTurn');
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
@@ -31,6 +34,14 @@ export const Game: React.FC = () => {
   useEffect(() => {
     resetGame();
   }, []);
+
+  useEffect(() => {
+    if (!isDemoPlaying) {
+      setStatus('yourTurn');
+    } else {
+      setStatus('demo');
+    }
+  }, [isDemoPlaying]);
 
   const resetGame = () => {
     const path = generatePath(7, 7, pathLength);
@@ -81,9 +92,9 @@ export const Game: React.FC = () => {
           setTimeout(() => {
             setGrid((prevGrid) => {
               const newGrid = prevGrid.map(row => [...row]);
-              if (newGrid[nextSegment.y][nextSegment.x] !== 'start')
+              if (newGrid[nextSegment.y][nextSegment.x] !== 'start') {
                 newGrid[nextSegment.y][nextSegment.x] = 'back';
-              return newGrid;
+              } return newGrid;
             });
           }, demoDelay + (demoDelay / 10));
           
@@ -156,6 +167,7 @@ export const Game: React.FC = () => {
           setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
           setPathLength(prevLength => Math.min(prevLength + 1, 15));
         }
+        setStatus('success');
 
         setTimeout(() => { alert('nice'); resetGame(); }, 20);
       }
@@ -166,7 +178,7 @@ export const Game: React.FC = () => {
       // une chance sur 3 de reduire le speed
       if (random < 0.33)
         setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500)); // ralentir la démo
-
+      setStatus('error');
       setTimeout(() => { alert('nope'); resetGame(); }, 20); 
     }
   }, [isDemoPlaying, gameOver, currentPath, currentIndex, score]);
@@ -185,9 +197,9 @@ export const Game: React.FC = () => {
 
 
   return (
-    <div>
+    <div className="game-container">
       <Board grid={grid} />
-
+      <StatusLamp status={status} />
       { gameOver && <div>Game Over! Votre: {score}</div> }
     </div>
   );
