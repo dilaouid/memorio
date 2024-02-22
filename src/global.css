@@ -4,7 +4,6 @@ body, #root {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
 }
   
 .board {
@@ -12,6 +11,9 @@ body, #root {
     grid-template-columns: repeat(7, 80px);
     grid-template-rows: repeat(7, 80px);
     gap: 1px;
+    border-color: #1d2534;
+    border: 10px solid #1d2534;
+    border-radius: 20px;
 }
   
 .tile {
@@ -20,4 +22,5 @@ body, #root {
     background-size: cover;
     margin: 0;
     padding: 0;
+    border: 1px solid #1d2534;
 }
