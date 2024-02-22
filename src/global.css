@@ -1,0 +1,23 @@
+body, #root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+  
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 70px);
+    grid-template-rows: repeat(10, 70px);
+    gap: 1px;
+}
+  
+.tile {
+    width: 70px;
+    height: 70px;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
