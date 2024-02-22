@@ -66,3 +66,27 @@ body, #root {
     right: -80px;
     top: 300px;
 }
+
+.score-popup {
+    animation: fadeMoveUp 4s;
+    text-shadow: 2px 2px 8px #1d2534;
+}
+  
+@keyframes fadeMoveUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+}
+  
+.positive {
+    color: rgb(123, 255, 171);
+}
+  
+.negative {
+    color: rgb(255, 123, 123);
+}

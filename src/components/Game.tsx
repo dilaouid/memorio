@@ -7,6 +7,8 @@ import { generateInitialGrid, generatePath, getArrowForPathSegment } from '../ut
 import { GridValue } from '../types/GridValue';
 import { LampStatus } from '../types/LampStatus';
 import StatusLamp from './StatusLamp';
+import { ScorePopupProps } from '../types/ScorePopupProps';
+import ScorePopup from './ScorePopup';
 
 // je dois encore trouver ces fichiers plus tard
 /* import startSound from '../assets/start.mp3';
@@ -27,6 +29,8 @@ export const Game: React.FC = () => {
   const [isFreeze, setIsFreeze] = useState(false);
 
   const [startRoundTime, setStartRoundTime] = useState<Date | null>(null);
+
+  const [popups, setPopups] = useState<ScorePopupProps[]>([]);
   
   /* const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
@@ -99,6 +103,24 @@ export const Game: React.FC = () => {
   
     console.log(`Penalty for this round: -${penalty}`);
     return penalty;
+  };
+
+  const addScorePopup = (score: number) => {
+    const top = `${Math.random() * 100}%`;
+    const left = `${Math.random() * 100}%`;
+
+    const newPopup: ScorePopupProps = {
+      id: `${new Date().getTime()}`,
+      score,
+      top,
+      left,
+      onFadeComplete: removeScorePopup,
+    };
+    setPopups((prevPopups) => [...prevPopups, newPopup]);
+  };
+  
+  const removeScorePopup = (id: string) => {
+    setPopups((prevPopups) => prevPopups.filter(popup => popup.id !== id));
   };
 
   const updateUserMoveOnGrid = useCallback((nextPosition: { x: number, y: number }, direction: GridValue) => {
@@ -204,6 +226,7 @@ export const Game: React.FC = () => {
       if (currentIndex + 1 === currentPath.length - 1) {
         // il a réussit !
         const roundScore = calculateScore();
+        addScorePopup(roundScore) 
         setScore(prevScore => prevScore + roundScore);
 
         console.log(`Score: ${score}`);
@@ -224,6 +247,7 @@ export const Game: React.FC = () => {
       setPathLength(prevLength => Math.max(prevLength - 1, 3));
       const roundPenalty = failPenalty();
 
+      addScorePopup(-roundPenalty);
       setScore((prevScore) => Math.max(prevScore - roundPenalty, 0));
       console.log(`Total score after penalty: ${score - roundPenalty}`);
       
@@ -246,6 +270,9 @@ export const Game: React.FC = () => {
   return (
     <div className="game-container">
       <Board grid={grid} />
+      {popups.map(popup => (
+        <ScorePopup key={popup.id} id={popup.id} score={popup.score} onFadeComplete={popup.onFadeComplete} top={popup.top} left={popup.left}  />
+      ))}
       <StatusLamp status={status} />
       { gameOver && <div>Game Over! Votre: {score}</div> }
     </div>
