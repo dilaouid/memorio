@@ -10,7 +10,6 @@ import StatusLamp from './StatusLamp';
 import { ScorePopupProps } from '../types/ScorePopupProps';
 import ScorePopup from './ScorePopup';
 
-// je dois encore trouver ces fichiers plus tard
 import { startSound, flipSound, invalidSound, validSound } from '../assets/sfx/sounds';
 
 export const Game: React.FC = () => {
@@ -59,7 +58,7 @@ export const Game: React.FC = () => {
       }, 200);
       return () => clearTimeout(timer);
     }
-  }, [status]);
+  }, [status, playStart]);
 
   const resetGame = () => {
     const path = generatePath(7, 7, pathLength);
@@ -89,7 +88,6 @@ export const Game: React.FC = () => {
     score *= pathLengthFactor;
     score = Math.floor(score);
 
-    console.log(`Score for this round: ${score}`);
     return score;
   };
 
@@ -99,9 +97,8 @@ export const Game: React.FC = () => {
     const pathLengthFactor = Math.max(currentPath.length, 1);
     
     // Calcul de la pénalité
-    let penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
+    const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
   
-    console.log(`Penalty for this round: -${penalty}`);
     return penalty;
   };
 
