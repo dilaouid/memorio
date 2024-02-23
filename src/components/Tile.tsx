@@ -6,9 +6,10 @@ import rightImage from '../assets/right.jpg';
 import topImage from '../assets/top.jpg';
 import bottomImage from '../assets/bottom.jpg';
 import backImage from '../assets/back.jpg';
+import failImage from '../assets/fail.jpg';
 
 type TileProps = {
-  type: 'start' | 'left' | 'right' | 'top' | 'bottom' | 'back';
+  type: 'start' | 'left' | 'right' | 'top' | 'bottom' | 'back' | 'fail';
 };
 
 export const Tile: React.FC<TileProps> = ({ type }) => {
@@ -21,6 +22,7 @@ export const Tile: React.FC<TileProps> = ({ type }) => {
         case 'right': return rightImage;
         case 'top': return topImage;
         case 'bottom': return bottomImage;
+        case 'fail': return failImage;
         default: return backImage;
       }
     };

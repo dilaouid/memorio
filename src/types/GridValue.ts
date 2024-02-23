@@ -1,1 +1,1 @@
-export type GridValue = "back" | "start" | "left" | "right" | "top" | "bottom";
+export type GridValue = "back" | "start" | "left" | "right" | "top" | "bottom" | "fail";

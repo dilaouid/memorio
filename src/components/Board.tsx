@@ -1,8 +1,9 @@
 import React from 'react';
 import { Tile } from './Tile';
+import { GridValue } from '../types/GridValue';
 
 type BoardProps = {
-  grid: ('start' | 'left' | 'right' | 'top' | 'bottom' | 'back')[][];
+  grid: (GridValue)[][];
 };
 
 export const Board: React.FC<BoardProps> = ({ grid }) => {

@@ -252,6 +252,7 @@ export const Game: React.FC = () => {
 
       // vérifier si la position jouée est bien dans la grid pour dessiner la flèche
       if (nextExpectedPosition.x >= 0 && nextExpectedPosition.x < 7 && nextExpectedPosition.y >= 0 && nextExpectedPosition.y < 7) {
+        direction = 'fail';
         updateUserMoveOnGrid(nextExpectedPosition, direction);
       }
 
