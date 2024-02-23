@@ -13,9 +13,11 @@
     "deploy": "pnpm run build && gh-pages -d dist"
   },
   "dependencies": {
+    "@xstate/react": "^4.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "use-sound": "^4.0.1"
+    "use-sound": "^4.0.1",
+    "xstate": "^5.8.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
