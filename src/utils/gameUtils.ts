@@ -9,7 +9,7 @@ type EmptyGrid = ('back' | 'start')[][];
  * @returns Un tableau 2D initialisé avec 'back' pour toutes les cases
 */
 export const generateInitialGrid = (rows: number, cols: number, path: {x: number, y: number}[]): ('back' | 'start')[][] => {
-    let grid: EmptyGrid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 'back'));
+    const grid: EmptyGrid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 'back'));
 
     const startX = path[0].x;
     const startY = path[0].y;
