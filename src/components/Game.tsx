@@ -103,8 +103,9 @@ export const Game: React.FC = () => {
   };
 
   const addScorePopup = (score: number) => {
-    const top = `${Math.random() * 100}%`;
-    const left = `${Math.random() * 100}%`;
+    // position top and left according to the last tile of the path
+    const top = `${currentPath[currentPath.length - 1].y * 100}px`;
+    const left = `${currentPath[currentPath.length - 1].x * 100}px`;
 
     const newPopup: ScorePopupProps = {
       id: `${new Date().getTime()}`,
