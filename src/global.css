@@ -8,6 +8,7 @@ body, #root {
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    user-select: none;
 }
 
 .game-container {
