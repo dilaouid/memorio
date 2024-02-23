@@ -17,7 +17,7 @@ body, #root {
     justify-content: center;
     align-items: center;
 }
-  
+
 .board {
     display: grid;
     grid-template-columns: repeat(7, 80px);
@@ -29,7 +29,7 @@ body, #root {
     border-radius: 20px;
     box-shadow: 0 0 500px 5px #ff580052;
 }
-  
+
 .tile {
     width: 80px;
     height: 80px;
@@ -46,18 +46,18 @@ body, #root {
     transition: transform 0.2s;
     transform-style: preserve-3d;
 }
-  
+
 .tileFlipped {
     transform: rotateY(180deg);
 }
-  
+
 .front, .back {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
 }
-  
+
 .back {
     transform: rotateY(180deg);
 }
@@ -81,7 +81,22 @@ body, #root {
     animation: fadeMoveUp 4s;
     text-shadow: 2px 2px 8px #1d2534;
 }
-  
+
+.demo-blink {
+    position: absolute;
+    color: #87cfff;
+    top: -45px;
+    right: 0;
+    animation: blink 2s infinite;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 30px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 @keyframes fadeMoveUp {
     0% {
       opacity: 1;
@@ -92,11 +107,11 @@ body, #root {
       transform: translateY(-20px);
     }
 }
-  
+
 .positive {
     color: rgb(123, 255, 171);
 }
-  
+
 .negative {
     color: rgb(255, 123, 123);
 }

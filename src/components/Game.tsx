@@ -283,6 +283,9 @@ export const Game: React.FC = () => {
   return (
     <div className="game-container">
       <div className="score-display">Score: {score}</div>
+      {isDemoPlaying && <div className="demo-blink">
+        DEMO
+      </div>}
       <Board grid={grid} />
       {popups.map(popup => (
         <ScorePopup key={popup.id} id={popup.id} score={popup.score} onFadeComplete={popup.onFadeComplete} top={popup.top} left={popup.left}  />
