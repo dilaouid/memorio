@@ -249,6 +249,12 @@ export const Game: React.FC = () => {
       }
     } else {
       // il a raté mdr
+
+      // vérifier si la position jouée est bien dans la grid pour dessiner la flèche
+      if (nextExpectedPosition.x >= 0 && nextExpectedPosition.x < 7 && nextExpectedPosition.y >= 0 && nextExpectedPosition.y < 7) {
+        updateUserMoveOnGrid(nextExpectedPosition, direction);
+      }
+
       setPathLength(prevLength => Math.max(prevLength - 1, 3));
       const roundPenalty = failPenalty();
 
