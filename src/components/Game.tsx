@@ -11,10 +11,7 @@ import { ScorePopupProps } from '../types/ScorePopupProps';
 import ScorePopup from './ScorePopup';
 
 // je dois encore trouver ces fichiers plus tard
-import startSound from '../assets/sfx/start.wav';
-import validSound from '../assets/sfx/valid.wav';
-import flipSound from '../assets/sfx/flip.wav';
-import invalidSound from '../assets/sfx/invalid.wav';
+import { startSound, flipSound, invalidSound, validSound } from '../assets/sfx/sounds';
 
 export const Game: React.FC = () => {
   const [grid, setGrid] = useState<(GridValue)[][]>([]);
