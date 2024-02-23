@@ -85,10 +85,10 @@ export const Game: React.FC = () => {
     const endTime = new Date();
     const timeTaken = (endTime.getTime() - startRoundTime.getTime()) / 1000;
     const timeLimit = 10;
-    const pathLengthFactor = Math.max(pathLength, 1); // prendre en compte la longueur du chemin
+    const pathLengthFactor = Math.max(currentPath.length, 1); // prendre en compte la longueur du chemin
 
     // calcul du score en fonction du temps restant et de la longueur du chemin
-    let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit), 0);
+    let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
     score *= pathLengthFactor;
     score = Math.floor(score);
 
@@ -99,7 +99,7 @@ export const Game: React.FC = () => {
   const failPenalty = () => {
     const maxScoreForPath = 100;
     const penaltyPercent = 25;
-    const pathLengthFactor = Math.max(pathLength, 1);
+    const pathLengthFactor = Math.max(currentPath.length, 1);
     
     // Calcul de la pénalité
     let penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
