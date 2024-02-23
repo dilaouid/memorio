@@ -68,6 +68,15 @@ body, #root {
     top: 300px;
 }
 
+.score-display {
+    position: absolute;
+    top: -40px;
+    left: -10px; 
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 20px;
+}
+
 .score-popup {
     animation: fadeMoveUp 4s;
     text-shadow: 2px 2px 8px #1d2534;
