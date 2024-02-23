@@ -18,8 +18,6 @@ export const Game: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDemoPlaying, setIsDemoPlaying] = useState(false);
   const [score, setScore] = useState(0);
-  // const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('highScoreMemorio') || 0));
-  const [gameOver, setGameOver] = useState(false);
   const [pathLength, setPathLength] = useState(3);
   const [demoDelay, setDemoDelay] = useState(600);
   const [status, setStatus] = useState<LampStatus>('yourTurn');
@@ -68,7 +66,6 @@ export const Game: React.FC = () => {
     setCurrentPath(path);
     setCurrentIndex(0);
     setIsDemoPlaying(true);
-    setGameOver(false);
     // playStart();
     setTimeout(() => {
         playDemo(path, setGrid, setIsDemoPlaying);
@@ -179,7 +176,7 @@ export const Game: React.FC = () => {
 
   // Gestion des touches du clavier
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (isDemoPlaying || gameOver || isFreeze) return; // impossible de bouger
+    if (isDemoPlaying || isFreeze) return; // impossible de bouger
     
     let direction: GridValue | null = null;
     let moveDirection: { x: number, y: number } | null = null;
@@ -228,8 +225,6 @@ export const Game: React.FC = () => {
         addScorePopup(roundScore) 
         setScore(prevScore => prevScore + roundScore);
 
-        console.log(`Score: ${score}`);
-
         // une chance sur 3 d'augmenter le speed pathLength de 1, 2 chances sur 3 de le laisser tel quel
         if (random < 0.33) {
           setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
@@ -267,7 +262,7 @@ export const Game: React.FC = () => {
         resetGame();
       }, 800); 
     }
-  }, [isDemoPlaying, gameOver, currentPath, currentIndex, score, isFreeze]);
+  }, [isDemoPlaying, currentPath, currentIndex, score, isFreeze, resetGame, updateUserMoveOnGrid]);
 
 
   useEffect(() => {
@@ -286,7 +281,6 @@ export const Game: React.FC = () => {
         <ScorePopup key={popup.id} id={popup.id} score={popup.score} onFadeComplete={popup.onFadeComplete} top={popup.top} left={popup.left}  />
       ))}
       <StatusLamp status={status} />
-      { gameOver && <div>Game Over! Votre: {score}</div> }
     </div>
   );
 };
