@@ -1,8 +1,8 @@
-import { setup } from "xstate";
+import { assign, sendParent, setup } from "xstate";
 import { GridValue } from "../types/GridValue";
 import { ScorePopupProps } from "../types/ScorePopupProps";
 import { LampStatus } from "../types/LampStatus";
-import { generateInitialGrid, generatePath } from "../utils/gameUtils";
+import { generateInitialGrid, generatePath, getArrowForPathSegment } from "../utils/gameUtils";
 
 type GameEvent =
   | { type: "START_GAME" }
@@ -10,7 +10,7 @@ type GameEvent =
   | { type: "ADD_SCORE_POPUP"; score: number; top: string; left: string }
   | { type: "REMOVE_SCORE_POPUP"; id: string }
   | { type: "DEMO_FINISHED" }
-  | { type: "USER_MOVED"; direction: GridValue; x: number; y: number }
+  | { type: 'USER_MOVED'; direction: GridValue; x: number; y: number }
   | { type: "NEXT_ROUND" }
   | { type: "RESET_GAME" };
 
@@ -19,22 +19,92 @@ type GameContext = {
   score: number;
   popups: ScorePopupProps[];
   status: LampStatus;
-  isFreeze: boolean;
   demoDelay: number;
   pathLength: number;
   currentPath: { x: number; y: number }[];
   currentIndex: number;
   isDemoPlaying: boolean;
   startRoundTime: Date | null;
+  path: { x: number; y: number }[];
 }
 
-export const machineMachine = setup({
+export const gameMachine = setup({
   types: {
     context: {} as GameContext,
     events: {} as GameEvent
   },
   actions: {
-    initializeGame: function ({ context }) {
+
+    decrementPathLength: assign({
+      pathLength: ({ context }) => Math.max(context.pathLength - 1, 3),
+    }),
+
+    applyPenalty: assign({
+      score: ({ context }) => Math.max(context.score - 10, 0),
+    }),
+
+    incrementPathLength: assign({
+      pathLength: ({ context }) => context.pathLength + 1,
+    }),
+
+    resetForNextRound: assign({
+      currentIndex: 0,
+      startRoundTime: null,
+    }),
+
+    playDemo: function ({ context }) {
+      assign({ isDemoPlaying: true });
+      const path = generatePath(7, 7, context.pathLength);
+
+      const demoIndex = 1;
+      const showNextArrow = () => {
+        if (demoIndex < path.length) {
+          const nextSegment = path[demoIndex];
+          const currentSegment = path[demoIndex - 1];
+          const direction = getArrowForPathSegment(currentSegment, nextSegment);
+          assign({ grid: ({context}) => {
+            const newGrid = context.grid.map((row: GridValue[]) => [...row]);
+            newGrid[nextSegment.y][nextSegment.x] = direction;
+            return newGrid;
+          }})
+        } else {
+          sendParent({ type: 'DEMO_FINISHED' });
+        }
+      };
+      showNextArrow();
+    },
+
+    stopDemo: assign({ isDemoPlaying: false, status: "yourTurn" }),
+
+    calculateScore: assign({
+      score: ({ context }) => {
+        if (context.startRoundTime) {
+          const endTime = new Date();
+          const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
+          const timeLimit = 10;
+          const pathLengthFactor = Math.max(context.currentPath.length, 1);
+          let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
+          score *= pathLengthFactor;
+          return Math.floor(score);
+        }
+        return context.score;
+      },
+    }),
+
+    updateUserMove: assign({
+      grid: ({ context, event }) => {
+        if (event.type === 'MOVE' || event.type === 'USER_MOVED') {
+          const { x, y, direction } = event;
+          if (context.grid && context.grid[y] && context.grid[y][x] !== undefined) {
+            context.grid[y][x] = direction;
+          }
+        }
+        return context.grid;
+      },
+      currentIndex: ({ context }) => context.currentIndex + 1,
+    }),
+
+    initializing: function ({ context }) {
       const path = generatePath(7, 7, context.pathLength);
       const initialGrid = generateInitialGrid(7, 7, path);
       context.grid = initialGrid;
@@ -42,65 +112,40 @@ export const machineMachine = setup({
       context.currentIndex = 0;
       context.isDemoPlaying = true;
       context.startRoundTime = null;
+      context.status = "demo";
     },
-    updateUserMove: function ({ context, event }) {
-      if (event.type === 'MOVE' || event.type === 'USER_MOVED') {
-        const { x, y, direction } = event;
-        if (context.grid && context.grid[y] && context.grid[y][x] !== undefined) {
-          context.grid[y][x] = direction;
-          context.currentIndex += 1;
-        }
-      }
-    },
-    calculateScore: function ({ context }) {
-      if (context.startRoundTime) {
-        const endTime = new Date();
-        const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
-        const timeLimit = 10;
-        const pathLengthFactor = Math.max(context.currentPath.length, 1);
-        let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
-        score *= pathLengthFactor;
-        context.score += Math.floor(score);
-      }
-    },
+
     addScorePopup: function ({ context, event }) {
-      if (event.type === 'ADD_SCORE_POPUP') {
-        const { score, top, left } = event;
-        const newPopup = {
-          id: `${new Date().getTime()}`,
-          score,
-          top,
-          left,
-          onFadeComplete: () => {/* Gérer la suppression ici si nécessaire */},
-        };
-        context.popups.push(newPopup);
-      }
+      if (event.type !== 'ADD_SCORE_POPUP') return {};
+      const { score, top, left } = event;
+      const newPopup = {
+        id: `${new Date().getTime()}`,
+        score,
+        top,
+        left,
+        onFadeComplete: () => { },
+      };
+      context.popups.push(newPopup);
     },
     removeScorePopup: function ({ context, event }) {
-      if (event.type === 'REMOVE_SCORE_POPUP') {
-        const { id } = event;
-        context.popups = context.popups.filter(popup => popup.id !== id);
-      }
+      if (event.type !== 'REMOVE_SCORE_POPUP') return {};
+      const { id } = event;
+      context.popups = context.popups.filter(popup => popup.id !== id);
     },
   },
   guards: {
     isDemoPlaying: ({context}) => context.isDemoPlaying,
+    completedPath: ({context}) => context.currentIndex === context.currentPath.length - 1,
     isValidMove: function ({ context, event }) {
-      if (event.type === 'USER_MOVED') {
-        const expectedPosition = context.currentPath[context.currentIndex];
-        return expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y;
-      } else {
-        return false;
-      }
+      if (event.type !== 'MOVE' && event.type !== 'USER_MOVED') return false;
+      const expectedPosition = context.currentPath[context.currentIndex];
+      return expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y;
     },
     isInvalidMove: function ({ context, event }) {
-      if (event.type === 'USER_MOVED') {
-        const expectedPosition = context.currentPath[context.currentIndex];
-        return !(expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y);
-      } else {
-        return false;
-      }
-    },
+      if (event.type !== 'MOVE' && event.type !== 'USER_MOVED') return false;
+      const expectedPosition = context.currentPath[context.currentIndex];
+      return !(expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y);
+    }
   },
   schemas: {
     events: {
@@ -166,9 +211,6 @@ export const machineMachine = setup({
       status: {
         type: "string"
       },
-      isFreeze: {
-        type: "boolean"
-      },
       demoDelay: {
         type: "number"
       },
@@ -198,101 +240,127 @@ export const machineMachine = setup({
     score: 0,
     popups: [],
     status: "yourTurn",
-    isFreeze: false,
     demoDelay: 600,
     pathLength: 3,
     currentPath: [],
     currentIndex: 0,
     isDemoPlaying: false,
     startRoundTime: null,
+    path: [],
   },
   id: "game",
   initial: "initializing",
   states: {
+
     initializing: {
-      on: {
-        START_GAME: 'loading'
-      },
-      entry: 'initializeGame'
-    },
-    loading: {
-      on: {
-        DEMO_FINISHED: 'playing'
-      }
-    },
-    playing: {
-      on: {
-        MOVE: {
-          actions: [
-            {
-              type: "updateUserMove",
-            },
-            {
-              type: "calculateScore",
-            },
-          ],
-        },
-        ADD_SCORE_POPUP: {
-          actions: {
-            type: "addScorePopup",
-          },
-        },
-        REMOVE_SCORE_POPUP: {
-          actions: {
-            type: "removeScorePopup",
-          },
-        },
-      },
-      always: {
-        target: "demo",
-        guard: {
-          type: "isDemoPlaying",
-        },
+      entry: assign(({context}) => {
+        const path = generatePath(7, 7, context.pathLength);
+        const initialGrid = generateInitialGrid(7, 7, path);
+        return {
+          grid: initialGrid,
+          currentPath: path,
+          currentIndex: 0,
+          isDemoPlaying: true,
+          startRoundTime: new Date(),
+        };
+      }),
+      on: { START_GAME: "demo" },
+      after: {
+        600: "demo",
       },
     },
-    demo: {
-      on: {
-        DEMO_FINISHED: {
-          target: "waitingForMove",
-        },
-      },
-    },
-    waitingForMove: {
-      on: {
-        USER_MOVED: {
-          target: "validatingMove",
-        },
-      },
-    },
-    validatingMove: {
+    
+    checkingMove: {
       always: [
-        {
-          target: "success",
-          guard: {
-            type: "isValidMove",
-          },
-        },
-        {
-          target: "error",
-          guard: {
-            type: "isInvalidMove",
-          },
-        },
+        { target: "success", guard: "completedPath" },
+        { target: "error", guard: "isInvalidMove" },
+        { target: "userTurn", guard: "isValidMove" },
       ],
     },
-    success: {
+
+    demo: {
+      entry: ['initializing', 'playDemo'],
       on: {
-        NEXT_ROUND: {
-          target: "initializing",
+        DEMO_FINISHED: { actions: assign({ isDemoPlaying: false }), target: "userTurn" },
+        START_GAME: { target: "demo" },
+      },
+      after: {
+        demoDelay: "userTurn",
+      },
+      exit: ['stopDemo'],
+    },
+
+
+    userTurn: {
+      on: {
+        MOVE: {
+          target: 'checkingMove',
+        },
+        USER_MOVED: {
+          actions: ["updateUserMove"],
+        },
+        NEXT_ROUND: 'demo',
+        RESET_GAME: {
+          target: 'demo',
+          actions: 'initializing',
         },
       },
     },
-    error: {
-      on: {
-        RESET_GAME: {
-          target: "initializing",
-        },
+
+    success: {
+      entry: function ({context}) {
+        const endTime = new Date();
+        const timeTaken = context.startRoundTime ? (endTime.getTime() - context.startRoundTime.getTime()) / 1000 : 0;
+        const score = Math.max(10 - timeTaken, 1) * context.pathLength * 10;
+        const lastSegment = context.currentPath[context.currentPath.length - 1];
+        context.popups.push({
+          id: `${Date.now()}`,
+          score: Math.round(score),
+          top: `${lastSegment.y * 100}px`,
+          left: `${lastSegment.x * 100}px`,
+          onFadeComplete: () => {},
+        });
+        context.score += Math.round(score);
+        context.pathLength += 1;
+        context.status = "success";
+        assign({ score: context.score, pathLength: context.pathLength, status: "success", popups: context.popups });
       },
+      after: {
+        1000: 'demo',
+      },
+    },
+
+    error: {
+      entry: function ({context, event}) {
+        if (event.type !== 'MOVE' && event.type !== 'USER_MOVED') return;
+
+        const maxScoreForPath = 100;
+        const penaltyPercent = 25;
+        const pathLengthFactor = Math.max(context.currentPath.length, 1);
+    
+        // Calcul de la pénalité
+        const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
+
+        const lastSegment = context.currentPath[context.currentIndex] || { x: 0, y: 0 };
+        context.popups.push({
+          id: `${Date.now()}`,
+          score: penalty,
+          top: `${lastSegment.y * 100}px`,
+          left: `${lastSegment.x * 100}px`,
+          onFadeComplete: () => {},
+        });
+        context.score = Math.max(context.score + penalty, 0);
+        context.pathLength = Math.max(context.pathLength - 1, 3);
+        context.status = "error";
+      },
+      after: {
+        1000: 'demo',
+      },
+    },
+  },
+  on: {
+    RESET_GAME: {
+      target: '.initializing',
     },
   },
 });
