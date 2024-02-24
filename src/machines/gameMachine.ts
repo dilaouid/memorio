@@ -1,4 +1,4 @@
-import { assign, sendParent, setup } from "xstate";
+import { assign, fromPromise, setup } from "xstate";
 import { GridValue } from "../types/GridValue";
 import { ScorePopupProps } from "../types/ScorePopupProps";
 import { LampStatus } from "../types/LampStatus";
@@ -10,9 +10,7 @@ type GameEvent =
   | { type: "ADD_SCORE_POPUP"; score: number; top: string; left: string }
   | { type: "REMOVE_SCORE_POPUP"; id: string }
   | { type: "DEMO_FINISHED" }
-  | { type: 'USER_MOVED'; direction: GridValue; x: number; y: number }
-  | { type: "NEXT_ROUND" }
-  | { type: "RESET_GAME" };
+  | { type: "UPDATE_GRID"; direction: GridValue; nextSegment: { x: number; y: number } };
 
 type GameContext = {
   grid: GridValue[][];
@@ -33,6 +31,28 @@ export const gameMachine = setup({
     context: {} as GameContext,
     events: {} as GameEvent
   },
+  actors: {
+    demoService: fromPromise(async ({ input }: { input: { pathLength: number, demoDelay: number } }) => {
+      console.log('Starting demo service');
+      return new Promise((resolve) => {
+        const path = generatePath(7, 7, input.pathLength);
+        let demoIndex = 0;
+        const showNextArrow = () => {
+          if (demoIndex < path.length - 1) {
+            const currentSegment = path[demoIndex];
+            const nextSegment = path[demoIndex + 1];
+            const direction = getArrowForPathSegment(currentSegment, nextSegment);
+            resolve({ type: 'UPDATE_GRID', direction, nextSegment });
+            demoIndex++;
+            setTimeout(showNextArrow, input.demoDelay);
+          } else {
+            resolve('DEMO_FINISHED');
+          }
+        };
+        showNextArrow();
+      });
+    })
+  },
   actions: {
 
     decrementPathLength: assign({
@@ -51,28 +71,6 @@ export const gameMachine = setup({
       currentIndex: 0,
       startRoundTime: null,
     }),
-
-    playDemo: function ({ context }) {
-      assign({ isDemoPlaying: true });
-      const path = generatePath(7, 7, context.pathLength);
-
-      const demoIndex = 1;
-      const showNextArrow = () => {
-        if (demoIndex < path.length) {
-          const nextSegment = path[demoIndex];
-          const currentSegment = path[demoIndex - 1];
-          const direction = getArrowForPathSegment(currentSegment, nextSegment);
-          assign({ grid: ({context}) => {
-            const newGrid = context.grid.map((row: GridValue[]) => [...row]);
-            newGrid[nextSegment.y][nextSegment.x] = direction;
-            return newGrid;
-          }})
-        } else {
-          sendParent({ type: 'DEMO_FINISHED' });
-        }
-      };
-      showNextArrow();
-    },
 
     stopDemo: assign({ isDemoPlaying: false, status: "yourTurn" }),
 
@@ -93,7 +91,7 @@ export const gameMachine = setup({
 
     updateUserMove: assign({
       grid: ({ context, event }) => {
-        if (event.type === 'MOVE' || event.type === 'USER_MOVED') {
+        if (event.type === 'MOVE') {
           const { x, y, direction } = event;
           if (context.grid && context.grid[y] && context.grid[y][x] !== undefined) {
             context.grid[y][x] = direction;
@@ -137,12 +135,12 @@ export const gameMachine = setup({
     isDemoPlaying: ({context}) => context.isDemoPlaying,
     completedPath: ({context}) => context.currentIndex === context.currentPath.length - 1,
     isValidMove: function ({ context, event }) {
-      if (event.type !== 'MOVE' && event.type !== 'USER_MOVED') return false;
+      if (event.type !== 'MOVE') return false;
       const expectedPosition = context.currentPath[context.currentIndex];
       return expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y;
     },
     isInvalidMove: function ({ context, event }) {
-      if (event.type !== 'MOVE' && event.type !== 'USER_MOVED') return false;
+      if (event.type !== 'MOVE') return false;
       const expectedPosition = context.currentPath[context.currentIndex];
       return !(expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y);
     }
@@ -177,19 +175,18 @@ export const gameMachine = setup({
       DEMO_FINISHED: {
         type: "object",
       },
-      USER_MOVED: {
+      UPDATE_GRID: {
         type: "object",
         properties: {
           direction: { type: "string" },
-          x: { type: "number" },
-          y: { type: "number" }
-        },    
-      },
-      NEXT_ROUND: {
-        type: "object"
-      },
-      RESET_GAME: {
-        type: "object"
+          nextSegment: {
+            type: "object",
+            properties: {
+              x: { type: "number" },
+              y: { type: "number" }
+            }
+          }
+        }
       },
     },
     context: {
@@ -253,6 +250,7 @@ export const gameMachine = setup({
   states: {
 
     initializing: {
+      always: 'demo',
       entry: assign(({context}) => {
         const path = generatePath(7, 7, context.pathLength);
         const initialGrid = generateInitialGrid(7, 7, path);
@@ -279,31 +277,35 @@ export const gameMachine = setup({
     },
 
     demo: {
-      entry: ['initializing', 'playDemo'],
+      invoke: {
+        id: 'demoService',
+        src: 'demoService',
+        input: ({ context: { pathLength, demoDelay } }) => ({ pathLength, demoDelay }),
+        onDone: {
+          target: 'userTurn',
+          actions: assign({ isDemoPlaying: false }),
+        }
+      },
       on: {
-        DEMO_FINISHED: { actions: assign({ isDemoPlaying: false }), target: "userTurn" },
-        START_GAME: { target: "demo" },
-      },
-      after: {
-        demoDelay: "userTurn",
-      },
-      exit: ['stopDemo'],
+        UPDATE_GRID: {
+          actions: assign({
+            grid: ({context, event}) => {
+              alert('pddpd')
+              const newGrid = context.grid.map((row: GridValue[]) => [...row]);
+              newGrid[event.nextSegment.y][event.nextSegment.x] = event.direction;
+              return newGrid;
+            },
+          }),
+        },
+      }
     },
-
 
     userTurn: {
       on: {
         MOVE: {
           target: 'checkingMove',
-        },
-        USER_MOVED: {
           actions: ["updateUserMove"],
-        },
-        NEXT_ROUND: 'demo',
-        RESET_GAME: {
-          target: 'demo',
-          actions: 'initializing',
-        },
+        }
       },
     },
 
@@ -332,7 +334,7 @@ export const gameMachine = setup({
 
     error: {
       entry: function ({context, event}) {
-        if (event.type !== 'MOVE' && event.type !== 'USER_MOVED') return;
+        if (event.type !== 'MOVE') return;
 
         const maxScoreForPath = 100;
         const penaltyPercent = 25;
@@ -359,8 +361,9 @@ export const gameMachine = setup({
     },
   },
   on: {
-    RESET_GAME: {
-      target: '.initializing',
+    DEMO_FINISHED: {
+      actions: assign({ isDemoPlaying: false }),
+      target: '.userTurn',
     },
   },
 });
