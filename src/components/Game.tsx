@@ -123,7 +123,7 @@ export const Game: React.FC = () => {
 
     if (
       (nextExpectedPosition.x === currentPath[0].x && nextExpectedPosition.y === currentPath[0].y)
-      || (nextExpectedPosition.x > gridSize - 1 || nextExpectedPosition.x < 0 || nextExpectedPosition.y > gridSize + 1 || nextExpectedPosition.y < 0))
+      || (nextExpectedPosition.x > gridSize - 1 || nextExpectedPosition.x < 0 || nextExpectedPosition.y > gridSize - 1 || nextExpectedPosition.y < 0))
       return;
 
     playFlip();
