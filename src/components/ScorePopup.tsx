@@ -1,15 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ScorePopupProps } from '../types/ScorePopupProps';
 
-const ScorePopup: React.FC<ScorePopupProps> = ({ id, score, top, left, onFadeComplete }) => {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onFadeComplete(id);
-        }, 4000);
-        return () => clearTimeout(timer);
-    }, [id, onFadeComplete]);
-    
-
+const ScorePopup: React.FC<ScorePopupProps> = ({ score, top, left }) => {
     const color = score > 0 ? 'green' : 'red';
     const scoreStyle: React.CSSProperties = {
         position: 'absolute',

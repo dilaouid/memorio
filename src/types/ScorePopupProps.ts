@@ -3,5 +3,4 @@ export type ScorePopupProps = {
     score: number;
     top: string;
     left: string;
-    onFadeComplete: (id: string) => void;
 };

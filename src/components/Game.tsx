@@ -146,7 +146,7 @@ export const Game: React.FC = () => {
       </div>}
       <Board grid={grid} />
       {popups.map(popup => (
-        <ScorePopup key={popup.id} id={popup.id} score={popup.score} onFadeComplete={popup.onFadeComplete} top={popup.top} left={popup.left}  />
+        <ScorePopup key={popup.id} id={popup.id} score={popup.score} top={popup.top} left={popup.left}  />
       ))}
       <StatusLamp status={status} gridSize={gridSize} />
     </div>

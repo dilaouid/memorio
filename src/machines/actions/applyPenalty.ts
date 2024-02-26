@@ -12,8 +12,7 @@ export const applyPenaltyAssign = (context: GameContext) => {
         id: `${new Date().getTime()}`,
         score: -penalty,
         top: `${context.currentPath[context.currentIndex].y * 100}px`,
-        left: `${context.currentPath[context.currentIndex].x * 100}px`,
-        onFadeComplete: () => { },
+        left: `${context.currentPath[context.currentIndex].x * 100}px`
     };
 
     return {

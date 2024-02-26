@@ -13,8 +13,7 @@ export const winSchemaAssign = (context: GameContext) => {
         id: `${new Date().getTime()}`,
         score: gainedPoints,
         top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
-        left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`,
-        onFadeComplete: () => {},
+        left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`
     };
     const random = Math.random();
     return {
