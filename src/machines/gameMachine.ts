@@ -20,13 +20,11 @@ interface GameContext {
 }
  
 type GameEvent =
-    | { type: 'START' }
     | { type: 'DEMO_END' }
     | { type: 'MOVE'; direction: GridValue; nextPosition: { x: number; y: number } }
     | { type: 'SUCCESS_MOVE' }
     | { type: 'COMPLETE_PATH' }
     | { type: 'FAIL_MOVE' }
-    | { type: 'RESET' }
     | { type: 'ADD_POPUP'; score: number }
     | { type: 'CLEAN_ARROW', position: { x: number; y: number } }
     | { type: 'REMOVE_POPUP'; id: string };
@@ -65,7 +63,6 @@ export const machine = setup({
                 if (event.type !== 'MOVE' ) return context.grid;
                 const newGrid = context.grid.map(row => [...row]);
 
-                
                 if (context.status !== 'demo' && (context.currentPath[context.currentIndex].x !== event.nextPosition.x || context.currentPath[context.currentIndex].y !== event.nextPosition.y)) {
                     newGrid[event.nextPosition.y][event.nextPosition.x] = 'fail';
                     return newGrid;
@@ -182,19 +179,11 @@ export const machine = setup({
     },
     schemas: {
         events: {
-            START: {
-                type: Object,
-                properties: {}
-            },
             DEMO_END: {
                 type: Object,
                 properties: {}
             },
             MOVE: {
-                type: Object,
-                properties: {}
-            },
-            RESET: {
                 type: Object,
                 properties: {}
             },
@@ -306,7 +295,6 @@ export const machine = setup({
             on: { 
                 DEMO_END: 'playing',
                 MOVE: { actions: 'updateGrid' },
-                RESET: 'initial',
                 CLEAN_ARROW: { actions: 'cleanArrow' }
             }
         },
@@ -325,8 +313,7 @@ export const machine = setup({
                         guard: 'isCorrectMove'
                     },
                     { target: 'failMove' }
-                ],
-                RESET: { target: 'initial' }
+                ]
             }
         },
         validateMove: {
@@ -347,7 +334,6 @@ export const machine = setup({
         },
         failMove: {
             on: {
-                RESET: { target: 'initial' },
                 REMOVE_POPUP: { actions: 'removeScorePopup' }
             },
             entry: ['updateGrid', 'applyPenalty', 'addPenaltyPopup', 'decreaseDifficulty' ],
