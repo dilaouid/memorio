@@ -27,13 +27,11 @@ export const generateInitialGrid = (path: {x: number, y: number}[]): ('back' | '
 */
 export const generatePath = (pathLength: number): {x: number, y: number}[] => {
     // on commence par faire le start du chemin
-    const startX = Math.floor(Math.random() * gridLength);
-    const startY = Math.floor(Math.random() * gridLength);
-    const path = [{x: startX, y: startY}];
+    const start = Math.floor(Math.random() * gridLength);
+    const path = [{x: start, y: start}];
   
     // Générer un chemin aléatoire
-    let currentX = startX;
-    let currentY = startY;
+    let currentX: number = start, currentY = start;
   
     const getValidMoves = (currentX: number, currentY: number, path: {x: number, y: number}[]) => {
       const directions = [
