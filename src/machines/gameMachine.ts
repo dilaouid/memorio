@@ -1,369 +1,327 @@
-import { assign, fromPromise, setup } from "xstate";
-import { GridValue } from "../types/GridValue";
-import { ScorePopupProps } from "../types/ScorePopupProps";
-import { LampStatus } from "../types/LampStatus";
-import { generateInitialGrid, generatePath, getArrowForPathSegment } from "../utils/gameUtils";
 
-type GameEvent =
-  | { type: "START_GAME" }
-  | { type: "MOVE"; direction: GridValue; x: number; y: number }
-  | { type: "ADD_SCORE_POPUP"; score: number; top: string; left: string }
-  | { type: "REMOVE_SCORE_POPUP"; id: string }
-  | { type: "DEMO_FINISHED" }
-  | { type: "UPDATE_GRID"; direction: GridValue; nextSegment: { x: number; y: number } };
+import { assign, setup } from 'xstate'
+import { generateInitialGrid, generatePath } from '../utils/gameUtils';
+import { GridValue } from '../types/GridValue';
+import { LampStatus } from '../types/LampStatus';
+import { ScorePopupProps } from '../types/ScorePopupProps';
 
-type GameContext = {
-  grid: GridValue[][];
-  score: number;
-  popups: ScorePopupProps[];
-  status: LampStatus;
-  demoDelay: number;
-  pathLength: number;
-  currentPath: { x: number; y: number }[];
-  currentIndex: number;
-  isDemoPlaying: boolean;
-  startRoundTime: Date | null;
-  path: { x: number; y: number }[];
+interface GameContext {
+    grid: GridValue[][];
+    currentPath: { x: number; y: number }[];
+    currentIndex: number;
+    isDemoPlaying: boolean;
+    score: number;
+    pathLength: number;
+    demoDelay: number;
+    status: LampStatus;
+    popups: ScorePopupProps[];
+    startRoundTime: Date | null;
 }
+ 
+type GameEvent =
+    | { type: 'START' }
+    | { type: 'DEMO_END' }
+    | { type: 'MOVE'; direction: GridValue; nextPosition: { x: number; y: number } }
+    | { type: 'SUCCESS_MOVE' }
+    | { type: 'COMPLETE_PATH' }
+    | { type: 'FAIL_MOVE' }
+    | { type: 'RESET' }
+    | { type: 'ADD_POPUP'; score: number }
+    | { type: 'REMOVE_POPUP'; id: string };
 
-export const gameMachine = setup({
-  types: {
-    context: {} as GameContext,
-    events: {} as GameEvent
-  },
-  actors: {
-    demoService: fromPromise(async ({ input }: { input: { pathLength: number, demoDelay: number } }) => {
-      console.log('Starting demo service');
-      return new Promise((resolve) => {
-        const path = generatePath(7, 7, input.pathLength);
-        let demoIndex = 0;
-        const showNextArrow = () => {
-          if (demoIndex < path.length - 1) {
-            const currentSegment = path[demoIndex];
-            const nextSegment = path[demoIndex + 1];
-            const direction = getArrowForPathSegment(currentSegment, nextSegment);
-            resolve({ type: 'UPDATE_GRID', direction, nextSegment });
-            demoIndex++;
-            setTimeout(showNextArrow, input.demoDelay);
-          } else {
-            resolve('DEMO_FINISHED');
-          }
-        };
-        showNextArrow();
-      });
-    })
-  },
-  actions: {
-
-    decrementPathLength: assign({
-      pathLength: ({ context }) => Math.max(context.pathLength - 1, 3),
-    }),
-
-    applyPenalty: assign({
-      score: ({ context }) => Math.max(context.score - 10, 0),
-    }),
-
-    incrementPathLength: assign({
-      pathLength: ({ context }) => context.pathLength + 1,
-    }),
-
-    resetForNextRound: assign({
-      currentIndex: 0,
-      startRoundTime: null,
-    }),
-
-    stopDemo: assign({ isDemoPlaying: false, status: "yourTurn" }),
-
-    calculateScore: assign({
-      score: ({ context }) => {
-        if (context.startRoundTime) {
-          const endTime = new Date();
-          const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
-          const timeLimit = 10;
-          const pathLengthFactor = Math.max(context.currentPath.length, 1);
-          let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
-          score *= pathLengthFactor;
-          return Math.floor(score);
-        }
-        return context.score;
-      },
-    }),
-
-    updateUserMove: assign({
-      grid: ({ context, event }) => {
-        if (event.type === 'MOVE') {
-          const { x, y, direction } = event;
-          if (context.grid && context.grid[y] && context.grid[y][x] !== undefined) {
-            context.grid[y][x] = direction;
-          }
-        }
-        return context.grid;
-      },
-      currentIndex: ({ context }) => context.currentIndex + 1,
-    }),
-
-    initializing: function ({ context }) {
-      const path = generatePath(7, 7, context.pathLength);
-      const initialGrid = generateInitialGrid(7, 7, path);
-      context.grid = initialGrid;
-      context.currentPath = path;
-      context.currentIndex = 0;
-      context.isDemoPlaying = true;
-      context.startRoundTime = null;
-      context.status = "demo";
+export const machine = setup({
+    types: {
+        context: { } as GameContext,
+        events: { } as GameEvent
     },
+    actions: {
+        setupGame: assign(({ context }) => {
+            const rows = 7;
+            const cols = 7;
+            const pathLength = context.pathLength;
+            const path = generatePath(rows, cols, pathLength);
+            const grid = generateInitialGrid(rows, cols, path);
+            const startRoundTime = new Date();
+            return { ...context, grid, currentPath: path, startRoundTime };
+        }),
 
-    addScorePopup: function ({ context, event }) {
-      if (event.type !== 'ADD_SCORE_POPUP') return {};
-      const { score, top, left } = event;
-      const newPopup = {
-        id: `${new Date().getTime()}`,
-        score,
-        top,
-        left,
-        onFadeComplete: () => { },
-      };
-      context.popups.push(newPopup);
-    },
-    removeScorePopup: function ({ context, event }) {
-      if (event.type !== 'REMOVE_SCORE_POPUP') return {};
-      const { id } = event;
-      context.popups = context.popups.filter(popup => popup.id !== id);
-    },
-  },
-  guards: {
-    isDemoPlaying: ({context}) => context.isDemoPlaying,
-    completedPath: ({context}) => context.currentIndex === context.currentPath.length - 1,
-    isValidMove: function ({ context, event }) {
-      if (event.type !== 'MOVE') return false;
-      const expectedPosition = context.currentPath[context.currentIndex];
-      return expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y;
-    },
-    isInvalidMove: function ({ context, event }) {
-      if (event.type !== 'MOVE') return false;
-      const expectedPosition = context.currentPath[context.currentIndex];
-      return !(expectedPosition && event.x === expectedPosition.x && event.y === expectedPosition.y);
-    }
-  },
-  schemas: {
-    events: {
-      START_GAME: {
-        type: "object"
-      },
-      MOVE: {
-        type: "object",
-        properties: {
-          direction: { type: "string" },
-          x: { type: "number" },
-          y: { type: "number" }
-        }
-      },
-      ADD_SCORE_POPUP: {
-        type: "object",
-        properties: {
-          score: { type: "number" },
-          top: { type: "string" },
-          left: { type: "string" }
-        }
-      },
-      REMOVE_SCORE_POPUP: {
-        type: "object",
-        properties: {
-          id: { type: "string" }
-        },    
-      },
-      DEMO_FINISHED: {
-        type: "object",
-      },
-      UPDATE_GRID: {
-        type: "object",
-        properties: {
-          direction: { type: "string" },
-          nextSegment: {
-            type: "object",
-            properties: {
-              x: { type: "number" },
-              y: { type: "number" }
-            }
-          }
-        }
-      },
-    },
-    context: {
-      grid: {
-        type: "array",
-        items: {
-          type: "string",
-        }
-      },
-      score: {
-        type: "number"
-      },
-      popups: {
-        type: "array",
-        items: {
-          type: "string",
-        }
-      },
-      status: {
-        type: "string"
-      },
-      demoDelay: {
-        type: "number"
-      },
-      pathLength: {
-        type: "number"
-      },
-      currentPath: {
-        type: "array",
-        items: {
-          type: "string",
-        }
-      },
-      currentIndex: {
-        type: "number"
-      },
-      isDemoPlaying: {
-        type: "boolean"
-      },
-      startRoundTime: {
-        type: "null"
-      },
-    },
-  },
-}).createMachine({
-  context: {
-    grid: [],
-    score: 0,
-    popups: [],
-    status: "yourTurn",
-    demoDelay: 600,
-    pathLength: 3,
-    currentPath: [],
-    currentIndex: 0,
-    isDemoPlaying: false,
-    startRoundTime: null,
-    path: [],
-  },
-  id: "game",
-  initial: "initializing",
-  states: {
 
-    initializing: {
-      always: 'demo',
-      entry: assign(({context}) => {
-        const path = generatePath(7, 7, context.pathLength);
-        const initialGrid = generateInitialGrid(7, 7, path);
-        return {
-          grid: initialGrid,
-          currentPath: path,
-          currentIndex: 0,
-          isDemoPlaying: true,
-          startRoundTime: new Date(),
-        };
-      }),
-      on: { START_GAME: "demo" },
-      after: {
-        600: "demo",
-      },
-    },
-    
-    checkingMove: {
-      always: [
-        { target: "success", guard: "completedPath" },
-        { target: "error", guard: "isInvalidMove" },
-        { target: "userTurn", guard: "isValidMove" },
-      ],
-    },
+        // to change into a service since i use sendParent, but i don't know how.............. sad
+        /* playDemo: ({context}) => {
+            const { currentPath, demoDelay } = context;
+            let demoIndex = 0;
 
-    demo: {
-      invoke: {
-        id: 'demoService',
-        src: 'demoService',
-        input: ({ context: { pathLength, demoDelay } }) => ({ pathLength, demoDelay }),
-        onDone: {
-          target: 'userTurn',
-          actions: assign({ isDemoPlaying: false }),
-        }
-      },
-      on: {
-        UPDATE_GRID: {
-          actions: assign({
+            const showNextArrow = () => {
+                if (demoIndex < currentPath.length - 1) {
+                    const currentSegment = currentPath[demoIndex];
+                    const nextSegment = currentPath[demoIndex + 1];
+                    const arrowDirection = getArrowForPathSegment(currentSegment, nextSegment);
+
+                    sendParent({ type: 'MOVE', direction: arrowDirection, nextPosition: nextSegment });
+                    demoIndex++;
+                    setTimeout(showNextArrow, demoDelay);
+                } else {
+                    sendParent({ type: 'DEMO_END' });
+                }
+            };
+            showNextArrow();
+        }, */
+        updateGrid: assign({
             grid: ({context, event}) => {
-              alert('pddpd')
-              const newGrid = context.grid.map((row: GridValue[]) => [...row]);
-              newGrid[event.nextSegment.y][event.nextSegment.x] = event.direction;
-              return newGrid;
+                if (event.type !== 'MOVE') return context.grid;
+                const newGrid = [...context.grid];
+                newGrid[event.nextPosition.y][event.nextPosition.x] = event.direction;
+                return newGrid;
             },
-          }),
+        }),
+        applyPenalty: assign({
+            score: ({context}) => {
+                const maxScoreForPath = 100;
+                const penaltyPercent = 25;
+                const pathLengthFactor = Math.max(context.currentPath.length, 1);
+            
+                const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
+                return Math.max(context.score - penalty, 0);
+            },
+        }),
+        addPopup: assign({
+            popups: ({context, event}) => {
+                if (event.type !== 'ADD_POPUP') return context.popups;
+                const newPopup = {
+                    id: `${new Date().getTime()}`,
+                    score: event.score,
+                    top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
+                    left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`,
+                    onFadeComplete: () => {},
+                };
+                return [...context.popups, newPopup];
+            },
+        }),
+        decreaseDifficulty: assign({
+            pathLength: ({context}) => Math.max(context.pathLength - 1, 3),
+            demoDelay: ({context}) => Math.min(context.demoDelay + (context.demoDelay * 0.1), 500),
+        }),
+        calculateScore: assign({
+            score: ({context}) => {
+                if (!context.startRoundTime) return context.score;
+
+                const endTime = new Date();
+                const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
+                const timeLimit = 10;
+                const pathLengthFactor = Math.max(context.currentPath.length, 1);
+
+                let newScore = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
+                newScore *= pathLengthFactor;
+                newScore = Math.floor(newScore);
+            
+                return context.score + newScore;
+            },
+        }),
+        increaseDifficulty: assign({
+            pathLength: ({context}) => Math.min(context.pathLength + 1, 15),
+            demoDelay: ({context}) => Math.max(context.demoDelay * 0.9, 100),
+        }),
+        addScorePopup: assign({
+            popups: ({context, event}) => {
+              if (event.type !== 'ADD_POPUP') return context.popups;
+          
+              const newPopup: ScorePopupProps = {
+                id: `${new Date().getTime()}`,
+                score: event.score,
+                top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
+                left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`,
+                onFadeComplete: () => {},
+              };
+          
+              return [...context.popups, newPopup];
+            },
+        }),
+        removeScorePopup: assign({
+            popups: ({context, event}) => {
+              if (event.type !== 'REMOVE_POPUP') return context.popups;
+              return context.popups.filter(popup => popup.id !== event.id);
+            },
+        })
+    },
+    guards: {
+        isCorrectMove: function ({context, event}) {
+            if (event.type !== 'MOVE') return false;
+            const nextSegment = context.currentPath[context.currentIndex];
+            return event.nextPosition.x === nextSegment.x && event.nextPosition.y === nextSegment.y;
         },
-      }
-    },
-
-    userTurn: {
-      on: {
-        MOVE: {
-          target: 'checkingMove',
-          actions: ["updateUserMove"],
+        hasCompletedPath: function ({context}) {
+            return context.currentIndex + 1 === context.currentPath.length;
         }
-      },
     },
-
-    success: {
-      entry: function ({context}) {
-        const endTime = new Date();
-        const timeTaken = context.startRoundTime ? (endTime.getTime() - context.startRoundTime.getTime()) / 1000 : 0;
-        const score = Math.max(10 - timeTaken, 1) * context.pathLength * 10;
-        const lastSegment = context.currentPath[context.currentPath.length - 1];
-        context.popups.push({
-          id: `${Date.now()}`,
-          score: Math.round(score),
-          top: `${lastSegment.y * 100}px`,
-          left: `${lastSegment.x * 100}px`,
-          onFadeComplete: () => {},
-        });
-        context.score += Math.round(score);
-        context.pathLength += 1;
-        context.status = "success";
-        assign({ score: context.score, pathLength: context.pathLength, status: "success", popups: context.popups });
-      },
-      after: {
-        1000: 'demo',
-      },
+    schemas: {
+        events: {
+            START: {
+                type: Object,
+                properties: {}
+            },
+            DEMO_END: {
+                type: Object,
+                properties: {}
+            },
+            MOVE: {
+                type: Object,
+                properties: {}
+            },
+            RESET: {
+                type: Object,
+                properties: {}
+            },
+            ADD_POPUP: {
+                type: Object,
+                properties: {}
+            },
+            REMOVE_POPUP: {
+                type: Object,
+                properties: {}
+            }
+        },
+        context: {
+            grid: {
+                type: Array,
+                items: {
+                    type: Array,
+                    items: {
+                        type: String
+                    }
+                }
+            },
+            currentPath: {
+                type: Array,
+                items: {
+                    type: Object,
+                    properties: {
+                        x: {
+                            type: Number
+                        },
+                        y: {
+                            type: Number
+                        }
+                    }
+                }
+            },
+            currentIndex: {
+                type: Number
+            },
+            isDemoPlaying: {
+                type: Boolean
+            },
+            score: {
+                type: Number
+            },
+            pathLength: {
+                type: Number
+            },
+            demoDelay: {
+                type: Number
+            },
+            status: {
+                type: String
+            },
+            popups: {
+                type: Array,
+                items: {
+                    type: Object,
+                    properties: {
+                        id: {
+                            type: String
+                        },
+                        score: {
+                            type: Number
+                        },
+                        top: {
+                            type: String
+                        },
+                        left: {
+                            type: String
+                        },
+                        onFadeComplete: {
+                            type: Function
+                        }
+                    }
+                }
+            },
+            startRoundTime: {
+                type: Object
+            }
+        },
+    }
+}).createMachine({
+    context: {
+        grid: [],
+        currentPath: [],
+        currentIndex: 0,
+        isDemoPlaying: false,
+        score: 0,
+        pathLength: 3,
+        demoDelay: 600,
+        status: 'yourTurn',
+        popups: [],
+        startRoundTime: null
     },
-
-    error: {
-      entry: function ({context, event}) {
-        if (event.type !== 'MOVE') return;
-
-        const maxScoreForPath = 100;
-        const penaltyPercent = 25;
-        const pathLengthFactor = Math.max(context.currentPath.length, 1);
-    
-        // Calcul de la pénalité
-        const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
-
-        const lastSegment = context.currentPath[context.currentIndex] || { x: 0, y: 0 };
-        context.popups.push({
-          id: `${Date.now()}`,
-          score: penalty,
-          top: `${lastSegment.y * 100}px`,
-          left: `${lastSegment.x * 100}px`,
-          onFadeComplete: () => {},
-        });
-        context.score = Math.max(context.score + penalty, 0);
-        context.pathLength = Math.max(context.pathLength - 1, 3);
-        context.status = "error";
-      },
-      after: {
-        1000: 'demo',
-      },
+    id: 'game',
+    initial: 'initial',
+    on: {
+        ADD_POPUP: {
+            actions: { type: 'addScorePopup' }
+        },
+        REMOVE_POPUP: {
+            actions: { type: 'removeScorePopup' }
+        }
     },
-  },
-  on: {
-    DEMO_FINISHED: {
-      actions: assign({ isDemoPlaying: false }),
-      target: '.userTurn',
-    },
-  },
-});
+    states: {
+        initial: {
+            on: {
+                START: { target: "demo" }
+            },
+            entry: { type: 'setupGame' }
+        },
+        playing: {
+            on: {
+                MOVE: [
+                    {
+                        target: 'successMove',
+                        guard: { type: 'isCorrectMove' }
+                    },
+                    { target: 'failMove' }
+                ],
+                RESET: { target: 'initial' }
+            }
+        },
+        successMove: {
+            always: [
+                {
+                    target: 'completePath',
+                    guard: { type: 'hasCompletedPath' }
+                },
+                { target: 'playing' }
+            ],
+            entry: { type: 'updateGrid' }
+        },
+        failMove: {
+            on: {
+                RESET: { target: 'initial' }
+            },
+            entry: [
+                { type: 'applyPenalty' },
+                { type: 'addPopup' },
+                { type: 'decreaseDifficulty' }
+            ]
+        },
+        completePath: {
+        on: {
+            RESET: { target: 'initial' }
+        },
+        entry: [
+            { type: 'calculateScore' },
+            { type: 'addPopup' },
+            { type: 'increaseDifficulty' }
+        ]
+        }
+    }
+})
+  
