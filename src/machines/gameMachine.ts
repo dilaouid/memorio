@@ -1,10 +1,11 @@
 import { assign, setup } from 'xstate'
 
 import { isValidMove } from '../utils/gameUtils';
-import { GameContext, GameEvent } from './types';
+import { GameContext, GameEvent } from '../types/Machine'
 import { actions } from './actions';
 
 const env = import.meta.env;
+
 
 export const machine = setup({
     types: {

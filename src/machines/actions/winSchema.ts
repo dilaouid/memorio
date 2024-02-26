@@ -1,7 +1,7 @@
 import { LampStatus } from "../../types/LampStatus";
 import { ScorePopupProps } from "../../types/ScorePopupProps";
 import { calculateScore } from "../../utils/gameUtils";
-import { GameContext } from "../types";
+import { GameContext } from "../../types/Machine";
 
 const newDifficulty = (context: GameContext) => {
     return Math.min(context.pathLength + 1, import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX as number)

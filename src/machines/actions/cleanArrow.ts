@@ -1,4 +1,4 @@
-import { GameContext, GameEvent } from "../types";
+import { GameContext, GameEvent } from "../../types/Machine";
 
 export const cleanArrowAssignGrid = (context: GameContext, event: GameEvent) => {
     if (event.type !== 'CLEAN_ARROW') return context.grid;

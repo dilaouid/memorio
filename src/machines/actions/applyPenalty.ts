@@ -1,5 +1,5 @@
 import { LampStatus } from "../../types/LampStatus";
-import { GameContext } from "../types";
+import { GameContext } from "../../types/Machine";
 
 export const applyPenaltyAssign = (context: GameContext) => {
     const maxScoreForPath = 100;
