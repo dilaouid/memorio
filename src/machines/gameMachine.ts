@@ -1,5 +1,5 @@
 
-import { assign, sendTo, setup } from 'xstate'
+import { assign, setup } from 'xstate'
 
 import { calculateScore, generateInitialGrid, generatePath, isValidMove } from '../utils/gameUtils';
 import { GridValue } from '../types/GridValue';
@@ -113,7 +113,7 @@ export const machine = setup({
                     score: -penalty,
                     top: `${context.currentPath[context.currentIndex].y * 100}px`,
                     left: `${context.currentPath[context.currentIndex].x * 100}px`,
-                    onFadeComplete: () => { sendTo('REMOVE_POPUP', { id: newPopup.id }) },
+                    onFadeComplete: () => { },
                 };
                 return [...context.popups, newPopup];
             },
