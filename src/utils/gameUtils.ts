@@ -93,3 +93,27 @@ export const getArrowForPathSegment = (start: {x: number, y: number}, end: {x: n
     if (start.y > end.y) return 'top';
     return 'back';
 };
+
+export const calculateScore = (context: { score: number, currentPath: { x: number; y: number }[], pathLength: number, currentIndex: number, startRoundTime: Date | null }): number => {
+  if (!context.startRoundTime) {
+    return context.score;
+  }
+
+  const endTime = new Date();
+  const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
+  const timeLimit = 10;
+  const pathLengthFactor = Math.max(context.currentPath.length, 1);
+
+  let newScore = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
+  newScore *= pathLengthFactor;
+  return Math.floor(newScore);
+}
+
+export const isValidMove = (context: { currentIndex: number, pathLength: number, currentPath: { x: number; y: number }[] }, event: { nextPosition: { x: number; y: number } }): boolean => {
+  if (event.nextPosition.x >= 7 || event.nextPosition.x < 0 || event.nextPosition.y >= 7 || event.nextPosition.y < 0) {
+    return false;
+  }
+  return context.currentIndex + 1 < context.pathLength && 
+    event.nextPosition.x === context.currentPath[context.currentIndex + 1].x && 
+    event.nextPosition.y === context.currentPath[context.currentIndex + 1].y;
+}

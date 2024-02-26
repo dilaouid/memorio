@@ -1,185 +1,98 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
+import { useMachine } from '@xstate/react';
+
+import { machine } from '../machines/gameMachine';
+
 import useSound from 'use-sound';
 
 import { Board } from './Board';
-import { generateInitialGrid, generatePath, getArrowForPathSegment } from '../utils/gameUtils';
 
 import { GridValue } from '../types/GridValue';
-import { LampStatus } from '../types/LampStatus';
 import StatusLamp from './StatusLamp';
-import { ScorePopupProps } from '../types/ScorePopupProps';
 import ScorePopup from './ScorePopup';
 
 import { startSound, flipSound, invalidSound, validSound } from '../assets/sfx/sounds';
+import { getArrowForPathSegment } from '../utils/gameUtils';
 
 export const Game: React.FC = () => {
-  const [grid, setGrid] = useState<(GridValue)[][]>([]);
-  const [currentPath, setCurrentPath] = useState<{x: number, y: number}[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDemoPlaying, setIsDemoPlaying] = useState(false);
-  const [score, setScore] = useState(0);
-  const [pathLength, setPathLength] = useState(3);
-  const [demoDelay, setDemoDelay] = useState(600);
-  const [status, setStatus] = useState<LampStatus>('yourTurn');
-  const [isFreeze, setIsFreeze] = useState(false);
-
-  const [startRoundTime, setStartRoundTime] = useState<Date | null>(null);
-
-  const [popups, setPopups] = useState<ScorePopupProps[]>([]);
   
+  const [ state, send ] = useMachine(machine);
+  const { grid, status, isDemoPlaying, currentIndex, currentPath, popups, score, demoDelay, pathLength } = state.context;
+
+
+  useEffect(() => {
+    if (state.value === 'demo') {
+      let demoIndex = 1;
+      const showNextArrow = () => {
+        if (demoIndex < pathLength) {
+          const currentSegment = currentPath[demoIndex - 1];
+          const nextSegment = currentPath[demoIndex];
+          if (nextSegment && currentSegment) {
+            const arrowDirection = getArrowForPathSegment(currentSegment, nextSegment);
+            send({ type: 'MOVE', direction: arrowDirection, nextPosition: nextSegment });
+          }
+
+          if (!nextSegment && demoIndex < pathLength) {
+            send({ type: 'CLEAN_ARROW', position: currentSegment });
+            send({ type: 'CLEAN_ARROW', position: currentPath[demoIndex] });
+            send({ type: 'CLEAN_ARROW', position: currentPath[demoIndex - 2] });
+
+            send({ type: 'DEMO_END' });
+            return;
+          }
+
+          
+          setTimeout(() => {
+            send({ type: 'CLEAN_ARROW', position: nextSegment });
+          }, demoDelay + (demoDelay / 10));
+
+          demoIndex++;
+          if (demoIndex < pathLength) {
+            setTimeout(showNextArrow, demoDelay - (demoDelay / 2));
+          } else {
+            setTimeout(() => {
+                send({ type: 'DEMO_END' });
+            }, demoDelay + (demoDelay / 5));
+          }  
+        } else {
+          send({ type: 'DEMO_END' });
+        }
+      };  
+      showNextArrow();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.value, currentPath, demoDelay, pathLength]);
+  
+
   const [playStart] = useSound(startSound);
   const [playValid] = useSound(validSound);
   const [playFlip] = useSound(flipSound);
   const [playInvalid] = useSound(invalidSound);
 
-  // Initialiser le jeu
+  // start the game
   useEffect(() => {
-    resetGame();
-  }, []);
-
-  useEffect(() => {
-    if (!isDemoPlaying) {
-      setStartRoundTime(new Date());
-      setStatus('yourTurn');
-    } else {
-      setStatus('demo');
+    switch (status) {
+      case 'yourTurn':
+        playStart();
+        break;
+      case 'error':
+        playInvalid();
+        break;
+      case 'success':
+        playValid();
+        break;
+      default:
+        break;
     }
-  }, [isDemoPlaying]);
-
-  useEffect(() => {
-    if (status === 'demo' || status === 'success' || status === 'error') {
-      setIsFreeze(true);
-    } else {
-      playStart();
-      const timer = setTimeout(() => {
-        setIsFreeze(false)
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [status, playStart]);
-
-  const resetGame = () => {
-    const path = generatePath(7, 7, pathLength);
-    const initialGrid = generateInitialGrid(7, 7, path);
-    setStartRoundTime(null);
-    setGrid(initialGrid);
-    setCurrentPath(path);
-    setCurrentIndex(0);
-    setIsDemoPlaying(true);
-    // playStart();
-    setTimeout(() => {
-        playDemo(path, setGrid, setIsDemoPlaying);
-    }, demoDelay);
-  };
-
-  const calculateScore = () => {
-    if (!startRoundTime) return 0;
-
-    const endTime = new Date();
-    const timeTaken = (endTime.getTime() - startRoundTime.getTime()) / 1000;
-    const timeLimit = 10;
-    const pathLengthFactor = Math.max(currentPath.length, 1); // prendre en compte la longueur du chemin
-
-    // calcul du score en fonction du temps restant et de la longueur du chemin
-    let score = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
-    score *= pathLengthFactor;
-    score = Math.floor(score);
-
-    return score;
-  };
-
-  const failPenalty = () => {
-    const maxScoreForPath = 100;
-    const penaltyPercent = 25;
-    const pathLengthFactor = Math.max(currentPath.length, 1);
-    
-    // Calcul de la pénalité
-    const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
-  
-    return penalty;
-  };
-
-  const addScorePopup = (score: number) => {
-    // position top and left according to the last tile of the path
-    const top = `${currentPath[currentPath.length - 1].y * 100}px`;
-    const left = `${currentPath[currentPath.length - 1].x * 100}px`;
-
-    const newPopup: ScorePopupProps = {
-      id: `${new Date().getTime()}`,
-      score,
-      top,
-      left,
-      onFadeComplete: removeScorePopup,
-    };
-    setPopups((prevPopups) => [...prevPopups, newPopup]);
-  };
-  
-  const removeScorePopup = (id: string) => {
-    setPopups((prevPopups) => prevPopups.filter(popup => popup.id !== id));
-  };
-
-  const updateUserMoveOnGrid = useCallback((nextPosition: { x: number, y: number }, direction: GridValue) => {
-    setGrid((prevGrid) => {
-      const newGrid = [...prevGrid];
-      newGrid[nextPosition.y][nextPosition.x] = direction;
-      return newGrid;
-    });
-  }, [setGrid]);
-
-  const playDemo = (
-    path: {x: number, y: number}[],
-    setGrid: React.Dispatch<React.SetStateAction<GridValue[][]>>,
-    setIsDemoPlaying: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    setIsDemoPlaying(true);
-    let demoIndex = 1;
-  
-    const showNextArrow = () => {
-      if (demoIndex < path.length) {
-        const currentSegment = path[demoIndex - 1];
-        const nextSegment = path[demoIndex];
-        const arrowImage = getArrowForPathSegment(currentSegment, nextSegment);
-  
-        // Montrer la flèche actuelle
-        setGrid((prevGrid) => {
-          const newGrid = prevGrid.map(row => [...row]);
-          newGrid[nextSegment.y][nextSegment.x] = arrowImage;
-          return newGrid;
-        });
-  
-        setTimeout(() => {
-          
-          setTimeout(() => {
-            setGrid((prevGrid) => {
-              const newGrid = prevGrid.map(row => [...row]);
-              if (newGrid[nextSegment.y][nextSegment.x] !== 'start') {
-                newGrid[nextSegment.y][nextSegment.x] = 'back';
-              } return newGrid;
-            });
-          }, demoDelay + (demoDelay / 10));
-          
-          demoIndex++;
-          if (demoIndex < path.length) {
-            setTimeout(showNextArrow, demoDelay - (demoDelay / 2));
-          } else {
-            setTimeout(() => {
-              setIsDemoPlaying(false);
-            }, demoDelay + (demoDelay / 5));
-          }
-        }, demoDelay / 2);
-      }
-   };
-    showNextArrow();
-  };
-
-  
+  }, [status, playStart, playValid, playInvalid]);
 
   // Gestion des touches du clavier
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (isDemoPlaying || isFreeze) return; // impossible de bouger
+    if (isDemoPlaying || status == 'success' || status == 'error') return; // impossible de bouger
     
     let direction: GridValue | null = null;
     let moveDirection: { x: number, y: number } | null = null;
+
     switch (event.key) {
       case 'ArrowLeft':
         direction = 'left';
@@ -200,69 +113,23 @@ export const Game: React.FC = () => {
       default:
         return; // Si la touche pressée n'est pas une flèche ne rien faire
     }
-
-
+  
     const lastConfirmedPosition = currentPath[currentIndex];
     const nextExpectedPosition = { 
       x: lastConfirmedPosition.x + moveDirection.x,
       y: lastConfirmedPosition.y + moveDirection.y
     };
 
+    if (
+      (nextExpectedPosition.x === currentPath[0].x && nextExpectedPosition.y === currentPath[0].y)
+      || (nextExpectedPosition.x > 6 || nextExpectedPosition.x < 0 || nextExpectedPosition.y > 6 || nextExpectedPosition.y < 0))
+      return;
 
-    const random = Math.random();
-    // vérifier si le mouvement est valide
-    if (currentIndex + 1 < currentPath.length && 
-        nextExpectedPosition.x === currentPath[currentIndex + 1].x && 
-        nextExpectedPosition.y === currentPath[currentIndex + 1].y) {
-      // c'est valide il peut bouger
-      playFlip();
-      updateUserMoveOnGrid(nextExpectedPosition, direction);
-      setCurrentIndex(currentIndex + 1);
+    playFlip();
+    
+    send({ type: 'MOVE', direction, nextPosition: nextExpectedPosition });
 
-      if (currentIndex + 1 === currentPath.length - 1) {
-        // il a réussit !
-        const roundScore = calculateScore();
-        addScorePopup(roundScore) 
-        setScore(prevScore => prevScore + roundScore);
-
-        // une chance sur 3 d'augmenter le speed pathLength de 1, 2 chances sur 3 de le laisser tel quel
-        if (random < 0.33) {
-          setDemoDelay(prevDelay => Math.max(prevDelay * .9, 100)); // accélérer la démo
-          setPathLength(prevLength => Math.min(prevLength + 1, 15));
-        }
-
-        setStatus('success');
-        playValid();
-        setTimeout(() => {
-          resetGame();
-        }, 800);
-      }
-    } else {
-      // il a raté mdr
-
-      // vérifier si la position jouée est bien dans la grid pour dessiner la flèche
-      if (nextExpectedPosition.x >= 0 && nextExpectedPosition.x < 7 && nextExpectedPosition.y >= 0 && nextExpectedPosition.y < 7) {
-        direction = 'fail';
-        updateUserMoveOnGrid(nextExpectedPosition, direction);
-      }
-
-      setPathLength(prevLength => Math.max(prevLength - 1, 3));
-      const roundPenalty = failPenalty();
-
-      addScorePopup(-roundPenalty);
-      setScore((prevScore) => Math.max(prevScore - roundPenalty, 0));
-      console.log(`Total score after penalty: ${score - roundPenalty}`);
-      
-      // une chance sur 3 de reduire le speed
-      if (random < 0.33)
-        setDemoDelay(prevDelay => Math.min(prevDelay + (prevDelay * .9), 500)); // ralentir la démo
-      setStatus('error');
-      playInvalid();
-      setTimeout(() => {
-        resetGame();
-      }, 800); 
-    }
-  }, [isDemoPlaying, currentPath, currentIndex, score, isFreeze, resetGame, updateUserMoveOnGrid]);
+  }, [send, currentIndex, currentPath, isDemoPlaying, playFlip, status]);
 
 
   useEffect(() => {
