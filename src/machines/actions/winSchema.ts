@@ -3,7 +3,7 @@ import { calculateScore } from "../../utils/gameUtils";
 import { GameContext } from "../types";
 
 const newDifficulty = (context: GameContext) => {
-    return Math.min(context.pathLength + 1, 15)
+    return Math.min(context.pathLength + 1, import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX as number)
 };
 
 export const winSchemaAssign = (context: GameContext) => {
