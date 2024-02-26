@@ -7,6 +7,9 @@ export const updateGridAssign = (context: GameContext, event: GameEvent) => {
     if (context.status !== 'demo' && (context.currentPath[context.currentIndex].x !== event.nextPosition.x || context.currentPath[context.currentIndex].y !== event.nextPosition.y)) {
         newGrid[event.nextPosition.y][event.nextPosition.x] = 'fail';
         return newGrid;
+    } else if (context.status !== 'demo' && context.currentIndex === context.currentPath.length - 1) {
+        newGrid[event.nextPosition.y][event.nextPosition.x] = 'success';
+        return newGrid;
     }
 
     newGrid[event.nextPosition.y][event.nextPosition.x] = event.direction;

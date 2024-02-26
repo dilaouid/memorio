@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import { ScorePopupProps } from '../types/ScorePopupProps';
 
-
-
 const ScorePopup: React.FC<ScorePopupProps> = ({ id, score, top, left, onFadeComplete }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
