@@ -4,6 +4,8 @@ import { isValidMove } from '../utils/gameUtils';
 import { GameContext, GameEvent } from './types';
 import { actions } from './actions';
 
+const env = import.meta.env;
+
 export const machine = setup({
     types: {
         context: { } as GameContext,
@@ -42,8 +44,8 @@ export const machine = setup({
         currentIndex: 0,
         isDemoPlaying: false,
         score: 0,
-        pathLength: import.meta.env.VITE_DEFAUT_PATHLENGTH,
-        demoDelay: import.meta.env.VITE_DEFAUT_DEMO_DELAY as number,
+        pathLength: Number(env.VITE_DEFAUT_PATHLENGTH),
+        demoDelay: Number(env.VITE_DEFAUT_DEMO_DELAY),
         status: 'demo',
         popups: [],
         startRoundTime: null
