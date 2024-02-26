@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-import startImage from '../assets/start.jpg';
-import leftImage from '../assets/left.jpg';
-import rightImage from '../assets/right.jpg';
-import topImage from '../assets/top.jpg';
-import bottomImage from '../assets/bottom.jpg';
-import backImage from '../assets/back.jpg';
-import failImage from '../assets/fail.jpg';
-import successImage from '../assets/success.jpg';
+import startImage from '../assets/tiles/start.jpg';
+import leftImage from '../assets/tiles/left.jpg';
+import rightImage from '../assets/tiles/right.jpg';
+import topImage from '../assets/tiles/top.jpg';
+import bottomImage from '../assets/tiles/bottom.jpg';
+import backImage from '../assets/tiles/back.jpg';
+import failImage from '../assets/tiles/fail.jpg';
+import successImage from '../assets/tiles/success.jpg';
 
 type TileProps = {
   type: 'start' | 'left' | 'right' | 'top' | 'bottom' | 'back' | 'fail' | 'success';
