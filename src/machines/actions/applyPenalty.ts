@@ -20,7 +20,7 @@ export const applyPenaltyAssign = (context: GameContext) => {
         score: newScore,
         status: 'error' as LampStatus,
         popups: [...context.popups, newPopup],
-        pathLength: Math.max(context.pathLength - 1, 3),
+        pathLength: Math.max(context.pathLength - 1, import.meta.env.VITE_DEFAUT_PATHLENGTH as number),
         demoDelay: Math.min(context.demoDelay + (context.demoDelay * 0.1), 500)
     }
 };
