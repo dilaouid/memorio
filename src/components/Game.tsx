@@ -119,6 +119,10 @@ export const Game: React.FC = () => {
       x: lastConfirmedPosition.x + moveDirection.x,
       y: lastConfirmedPosition.y + moveDirection.y
     };
+
+    if (nextExpectedPosition.x === currentPath[0].x && nextExpectedPosition.y === currentPath[0].y)
+      return;
+
     playFlip();
     
     send({ type: 'MOVE', direction, nextPosition: nextExpectedPosition });
