@@ -52,10 +52,12 @@ export const machine = setup({
         }),
         cleanArrow: assign({
             grid: ({context, event}) => {
-              if (event.type !== 'CLEAN_ARROW') return context.grid;
-              const newGrid = context.grid.map(row => [...row]);
-              newGrid[event.position.y][event.position.x] = 'back';
-              return newGrid;
+                if (event.type !== 'CLEAN_ARROW') return context.grid;
+                const newGrid = context.grid.map(row => [...row]);
+                if (!event.position) return newGrid;
+                if (event.position?.y < 0 || event.position?.y >= newGrid.length || event.position?.x < 0 || event.position?.x >= newGrid[0].length) return newGrid;
+                newGrid[event.position.y][event.position.x] = 'back';
+                return newGrid;
             },
         }),          
         updateGrid: assign({

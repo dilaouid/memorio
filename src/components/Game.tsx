@@ -25,24 +25,37 @@ export const Game: React.FC = () => {
       let demoIndex = 1;
       const showNextArrow = () => {
         if (demoIndex < pathLength) {
-          
           const currentSegment = currentPath[demoIndex - 1];
           const nextSegment = currentPath[demoIndex];
-          const arrowDirection = getArrowForPathSegment(currentSegment, nextSegment);
+          if (nextSegment && currentSegment) {
+            const arrowDirection = getArrowForPathSegment(currentSegment, nextSegment);
+            send({ type: 'MOVE', direction: arrowDirection, nextPosition: nextSegment });
+          }
 
-          send({ type: 'MOVE', direction: arrowDirection, nextPosition: nextSegment });
+          if (!nextSegment && demoIndex < pathLength) {
+            send({ type: 'CLEAN_ARROW', position: currentSegment });
+            send({ type: 'CLEAN_ARROW', position: currentPath[demoIndex] });
+            send({ type: 'CLEAN_ARROW', position: currentPath[demoIndex - 2] });
+
+            send({ type: 'DEMO_END' });
+            return;
+          }
+
+          
           setTimeout(() => {
             send({ type: 'CLEAN_ARROW', position: nextSegment });
           }, demoDelay + (demoDelay / 10));
-  
+
           demoIndex++;
           if (demoIndex < pathLength) {
             setTimeout(showNextArrow, demoDelay - (demoDelay / 2));
           } else {
             setTimeout(() => {
-              send({ type: 'DEMO_END' });
+                send({ type: 'DEMO_END' });
             }, demoDelay + (demoDelay / 5));
           }  
+        } else {
+          send({ type: 'DEMO_END' });
         }
       };  
       showNextArrow();
