@@ -43,7 +43,7 @@ export const machine = setup({
         isDemoPlaying: false,
         score: 0,
         pathLength: import.meta.env.VITE_DEFAUT_PATHLENGTH,
-        demoDelay: 600,
+        demoDelay: import.meta.env.VITE_DEFAUT_DEMO_DELAY as number,
         status: 'demo',
         popups: [],
         startRoundTime: null
