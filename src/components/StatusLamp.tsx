@@ -14,11 +14,10 @@ const StatusLamp: React.FC<StatusLampProps> = ({ status, gridSize }) => {
   let lampImage;
 
   const tileSize = 80;
-  const gridGap = 1;
   const boardBorderWidth = 10;
 
-  const rightPosition = -tileSize - boardBorderWidth + (gridGap * 10); 
-  const topPosition = gridSize * (tileSize + gridGap) - (tileSize * 2);
+  const rightPosition = -tileSize;
+  const topPosition = (tileSize * gridSize) - (tileSize * 3) - boardBorderWidth;
 
   const lampStyle = {
     right: `${rightPosition}px`,
