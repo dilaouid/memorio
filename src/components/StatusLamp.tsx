@@ -7,10 +7,23 @@ import yourTurnLamp from '../assets/your_turn_lamp.png';
 
 type StatusLampProps = {
   status: 'demo' | 'error' | 'success' | 'yourTurn';
+  gridSize: number;
 };
 
-const StatusLamp: React.FC<StatusLampProps> = ({ status }) => {
+const StatusLamp: React.FC<StatusLampProps> = ({ status, gridSize }) => {
   let lampImage;
+
+  const tileSize = 80;
+  const gridGap = 1;
+  const boardBorderWidth = 10;
+
+  const rightPosition = -tileSize - boardBorderWidth + (gridGap * 10); 
+  const topPosition = gridSize * (tileSize + gridGap) - (tileSize * 2);
+
+  const lampStyle = {
+    right: `${rightPosition}px`,
+    top: `${topPosition}px`,
+  };
 
   switch (status) {
     case 'demo':
@@ -29,7 +42,7 @@ const StatusLamp: React.FC<StatusLampProps> = ({ status }) => {
       lampImage = yourTurnLamp;
   }
 
-  return <img src={lampImage} alt="Status Lamp" className='status-lamp' />;
+  return <img src={lampImage} alt="Status Lamp" className='status-lamp' style={lampStyle} />;
 };
 
 export default StatusLamp;

@@ -18,6 +18,7 @@ export const Game: React.FC = () => {
   
   const [ state, send ] = useMachine(machine);
   const { grid, status, isDemoPlaying, currentIndex, currentPath, popups, score, demoDelay, pathLength } = state.context;
+  const gridSize = import.meta.env.VITE_GRID_SIZE as number;
 
 
   useEffect(() => {
@@ -122,14 +123,14 @@ export const Game: React.FC = () => {
 
     if (
       (nextExpectedPosition.x === currentPath[0].x && nextExpectedPosition.y === currentPath[0].y)
-      || (nextExpectedPosition.x > 6 || nextExpectedPosition.x < 0 || nextExpectedPosition.y > 6 || nextExpectedPosition.y < 0))
+      || (nextExpectedPosition.x > gridSize - 1 || nextExpectedPosition.x < 0 || nextExpectedPosition.y > gridSize + 1 || nextExpectedPosition.y < 0))
       return;
 
     playFlip();
     
     send({ type: 'MOVE', direction, nextPosition: nextExpectedPosition });
 
-  }, [send, currentIndex, currentPath, isDemoPlaying, playFlip, status]);
+  }, [send, currentIndex, currentPath, isDemoPlaying, playFlip, status, gridSize]);
 
 
   useEffect(() => {
@@ -147,7 +148,7 @@ export const Game: React.FC = () => {
       {popups.map(popup => (
         <ScorePopup key={popup.id} id={popup.id} score={popup.score} onFadeComplete={popup.onFadeComplete} top={popup.top} left={popup.left}  />
       ))}
-      <StatusLamp status={status} />
+      <StatusLamp status={status} gridSize={gridSize} />
     </div>
   );
 };

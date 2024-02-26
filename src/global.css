@@ -62,8 +62,6 @@ body, #root {
 
 .status-lamp {
     position: absolute;
-    right: -80px;
-    top: 300px;
 }
 
 .score-display {
