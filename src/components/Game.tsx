@@ -58,7 +58,6 @@ export const Game: React.FC = () => {
 
   // start the game
   useEffect(() => {
-
     switch (status) {
       case 'yourTurn':
         playStart();
@@ -76,7 +75,7 @@ export const Game: React.FC = () => {
 
   // Gestion des touches du clavier
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (isDemoPlaying) return; // impossible de bouger
+    if (isDemoPlaying || status == 'success' || status == 'error') return; // impossible de bouger
     
     let direction: GridValue | null = null;
     let moveDirection: { x: number, y: number } | null = null;
@@ -111,7 +110,7 @@ export const Game: React.FC = () => {
     
     send({ type: 'MOVE', direction, nextPosition: nextExpectedPosition });
 
-  }, [send, currentIndex, currentPath, isDemoPlaying, playFlip]);
+  }, [send, currentIndex, currentPath, isDemoPlaying, playFlip, status]);
 
 
   useEffect(() => {
