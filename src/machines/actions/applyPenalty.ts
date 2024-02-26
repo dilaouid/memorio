@@ -3,7 +3,7 @@ import { GameContext } from "../types";
 
 export const applyPenaltyAssign = (context: GameContext) => {
     const maxScoreForPath = 100;
-    const penaltyPercent = 25;
+    const penaltyPercent = import.meta.env.VITE_PENALTY_PERCENT;
     const pathLengthFactor = Math.max(context.currentPath.length, 1);
 
     const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
