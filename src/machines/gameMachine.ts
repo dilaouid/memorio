@@ -154,9 +154,10 @@ export const machine = setup({
             },
         }),
         removeScorePopup: assign({
-            popups: ({context, event}) => {
-              if (event.type !== 'REMOVE_POPUP') return context.popups;
-              return context.popups.filter(popup => popup.id !== event.id);
+            popups: ({context}) => {
+                const lastPopup = context.popups[context.popups.length - 1];
+                if (!lastPopup) return context.popups;
+                return context.popups.filter(popup => popup.id !== lastPopup.id);
             },
         }),
         playerTurn: assign({
@@ -348,6 +349,7 @@ export const machine = setup({
             },
             entry: ['applyPenalty', 'addPenaltyPopup', 'decreaseDifficulty' ],
             after: {
+                999: { actions: 'removeScorePopup' },
                 1000: 'initial'
             }
         },
@@ -358,7 +360,8 @@ export const machine = setup({
             },
             entry: ['calculateScore', 'addPopup', 'increaseDifficulty'],
             after: {
-                1000: 'initial'
+                999: { actions: 'removeScorePopup' },
+                1000: 'initial',
             }
         }
     }
