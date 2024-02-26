@@ -1,15 +1,16 @@
 import { GridValue } from "../types/GridValue";
 
+const gridLength = import.meta.env.VITE_GRID_SIZE;
+
 type EmptyGrid = ('back' | 'start')[][];
 
 /**
  * Génère un plateau de jeu initial rempli des cases non révélées
- * @param rows
- * @param cols
+ * @param path Le chemin à générer
  * @returns Un tableau 2D initialisé avec 'back' pour toutes les cases
 */
-export const generateInitialGrid = (rows: number, cols: number, path: {x: number, y: number}[]): ('back' | 'start')[][] => {
-    const grid: EmptyGrid = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 'back'));
+export const generateInitialGrid = (path: {x: number, y: number}[]): ('back' | 'start')[][] => {
+    const grid: EmptyGrid = Array.from({ length: gridLength }, () => Array.from({ length: gridLength }, () => 'back'));
 
     const startX = path[0].x;
     const startY = path[0].y;
@@ -21,13 +22,13 @@ export const generateInitialGrid = (rows: number, cols: number, path: {x: number
 
 /**
  * Sélectionne une case de départ aléatoire et génère un chemin à partir de celle-ci
- * @param grid Le plateau de jeu
+ * @param pathLength La longueur du chemin à générer
  * @returns Le chemin généré sous forme d'une liste de coordonnées {x, y}
 */
-export const generatePath = (rows: number, cols: number, pathLength: number): {x: number, y: number}[] => {
+export const generatePath = (pathLength: number): {x: number, y: number}[] => {
     // on commence par faire le start du chemin
-    const startX = Math.floor(Math.random() * cols);
-    const startY = Math.floor(Math.random() * rows);
+    const startX = Math.floor(Math.random() * gridLength);
+    const startY = Math.floor(Math.random() * gridLength);
     const path = [{x: startX, y: startY}];
   
     // Générer un chemin aléatoire
@@ -45,8 +46,8 @@ export const generatePath = (rows: number, cols: number, pathLength: number): {x
       return directions
         .map(dir => ({ x: currentX + dir.x, y: currentY + dir.y }))
         .filter(pos => 
-          pos.x >= 0 && pos.x < cols &&
-          pos.y >= 0 && pos.y < rows &&
+          pos.x >= 0 && pos.x < gridLength &&
+          pos.y >= 0 && pos.y < gridLength &&
           !path.some(p => p.x === pos.x && p.y === pos.y) // ne pas reproduire les pas précédents
         );
     };
@@ -110,7 +111,7 @@ export const calculateScore = (context: { score: number, currentPath: { x: numbe
 }
 
 export const isValidMove = (context: { currentIndex: number, pathLength: number, currentPath: { x: number; y: number }[] }, event: { nextPosition: { x: number; y: number } }): boolean => {
-  if (event.nextPosition.x >= 7 || event.nextPosition.x < 0 || event.nextPosition.y >= 7 || event.nextPosition.y < 0) {
+  if (event.nextPosition.x >= gridLength || event.nextPosition.x < 0 || event.nextPosition.y >= gridLength || event.nextPosition.y < 0) {
     return false;
   }
   return context.currentIndex + 1 < context.pathLength && 
