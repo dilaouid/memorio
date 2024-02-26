@@ -1,4 +1,3 @@
-
 import { assign, setup } from 'xstate'
 
 import { isValidMove } from '../utils/gameUtils';
