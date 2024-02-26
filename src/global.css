@@ -20,8 +20,6 @@ body, #root {
 
 .board {
     display: grid;
-    grid-template-columns: repeat(7, 80px);
-    grid-template-rows: repeat(7, 80px);
     gap: 1px;
     border-color: #1d2534;
     border: 10px solid #1d2534;
