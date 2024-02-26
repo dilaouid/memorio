@@ -1,3 +1,4 @@
+import { LampStatus } from "../../types/LampStatus";
 import { ScorePopupProps } from "../../types/ScorePopupProps";
 import { calculateScore } from "../../utils/gameUtils";
 import { GameContext } from "../types";
@@ -21,5 +22,6 @@ export const winSchemaAssign = (context: GameContext) => {
         score: context.score + gainedPoints,
         pathLength: random < 0.3 ? context.pathLength : newDifficulty(context),
         demoDelay: random < 0.3 ? context.demoDelay : Math.max(context.demoDelay * 0.9, 100),
+        status: 'success' as LampStatus
     };
 };
