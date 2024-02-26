@@ -110,6 +110,9 @@ export const calculateScore = (context: { score: number, currentPath: { x: numbe
 }
 
 export const isValidMove = (context: { currentIndex: number, pathLength: number, currentPath: { x: number; y: number }[] }, event: { nextPosition: { x: number; y: number } }): boolean => {
+  if (event.nextPosition.x >= 7 || event.nextPosition.x < 0 || event.nextPosition.y >= 7 || event.nextPosition.y < 0) {
+    return false;
+  }
   return context.currentIndex + 1 < context.pathLength && 
     event.nextPosition.x === context.currentPath[context.currentIndex + 1].x && 
     event.nextPosition.y === context.currentPath[context.currentIndex + 1].y;
