@@ -1,7 +1,7 @@
 
 import { assign, sendTo, setup } from 'xstate'
 
-import { generateInitialGrid, generatePath } from '../utils/gameUtils';
+import { calculateScore, generateInitialGrid, generatePath, isValidMove } from '../utils/gameUtils';
 import { GridValue } from '../types/GridValue';
 import { LampStatus } from '../types/LampStatus';
 import { ScorePopupProps } from '../types/ScorePopupProps';
@@ -64,6 +64,13 @@ export const machine = setup({
             grid: ({context, event}) => {
                 if (event.type !== 'MOVE' ) return context.grid;
                 const newGrid = context.grid.map(row => [...row]);
+
+                
+                if (context.status !== 'demo' && (context.currentPath[context.currentIndex].x !== event.nextPosition.x || context.currentPath[context.currentIndex].y !== event.nextPosition.y)) {
+                    newGrid[event.nextPosition.y][event.nextPosition.x] = 'fail';
+                    return newGrid;
+                }
+
                 newGrid[event.nextPosition.y][event.nextPosition.x] = event.direction;
                 return newGrid;
             },
@@ -82,22 +89,23 @@ export const machine = setup({
             },
             status: () => 'error' as LampStatus
         }),
-        addPopup: assign({
+        winSchema: assign({
             popups: ({context}) => {
-                const newPopup = {
+                const newPopup: ScorePopupProps = {
                     id: `${new Date().getTime()}`,
-                    score: context.score,
+                    score: calculateScore(context),
                     top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
                     left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`,
-                    onFadeComplete: () => { },
+                    onFadeComplete: () => {},
                 };
                 return [...context.popups, newPopup];
+            },
+            score: ({context}) => {
+                return context.score + calculateScore(context)
             },
         }),
         addPenaltyPopup: assign({
             popups: ({context}) => {
-                console.log('ooops');
-                
                 const maxScoreForPath = 100;
                 const penaltyPercent = 25;
                 const pathLengthFactor = Math.max(context.currentPath.length, 1);
@@ -117,27 +125,19 @@ export const machine = setup({
             pathLength: ({context}) => Math.max(context.pathLength - 1, 3),
             demoDelay: ({context}) => Math.min(context.demoDelay + (context.demoDelay * 0.1), 500)
         }),
-        calculateScore: assign({
-            score: ({context}) => {
-                console.log("calculateScore");
-                
-                if (!context.startRoundTime) return context.score;
-
-                const endTime = new Date();
-                const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
-                const timeLimit = 10;
-                const pathLengthFactor = Math.max(context.currentPath.length, 1);
-
-                let newScore = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
-                newScore *= pathLengthFactor;
-                newScore = Math.floor(newScore);
-            
-                return context.score + newScore;
-            },
-        }),
         increaseDifficulty: assign({
-            pathLength: ({context}) => Math.min(context.pathLength + 1, 15),
-            demoDelay: ({context}) => Math.max(context.demoDelay * 0.9, 100),
+            pathLength: ({context}) => {
+                const random = Math.random();
+                if (random < 0.3)
+                    return context.pathLength;
+                return Math.min(context.pathLength + 1, 15)
+            },
+            demoDelay: ({context}) => {
+                const random = Math.random();
+                if (random < 0.3)
+                    return context.demoDelay;
+                return Math.max(context.demoDelay * 0.9, 100)
+            },
             status: () => 'success' as LampStatus
         }),
         addScorePopup: assign({
@@ -146,13 +146,16 @@ export const machine = setup({
           
               const newPopup: ScorePopupProps = {
                 id: `${new Date().getTime()}`,
-                score: event.score,
+                score: calculateScore(context),
                 top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
                 left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`,
                 onFadeComplete: () => {},
               };
           
               return [...context.popups, newPopup];
+            },
+            score: ({context}) => {
+                return calculateScore(context)
             },
         }),
         removeScorePopup: assign({
@@ -171,9 +174,7 @@ export const machine = setup({
     guards: {
         isCorrectMove: function ({context, event}) {
             if (event.type !== 'MOVE') return false;
-            return context.currentIndex + 1 < context.currentPath.length && 
-                event.nextPosition.x === context.currentPath[context.currentIndex + 1].x && 
-                event.nextPosition.y === context.currentPath[context.currentIndex + 1].y
+            return isValidMove(context, event)
         },
         hasCompletedPath: function ({context}) {
             return context.currentIndex + 1 === context.currentPath.length;
@@ -293,7 +294,7 @@ export const machine = setup({
     initial: 'initial',
     on: {
         ADD_POPUP: {
-            actions: { type: 'addScorePopup' }
+            actions: { type: 'winSchema' }
         },
         REMOVE_POPUP: {
             actions: 'removeScorePopup'
@@ -349,7 +350,7 @@ export const machine = setup({
                 RESET: { target: 'initial' },
                 REMOVE_POPUP: { actions: 'removeScorePopup' }
             },
-            entry: ['applyPenalty', 'addPenaltyPopup', 'decreaseDifficulty' ],
+            entry: ['updateGrid', 'applyPenalty', 'addPenaltyPopup', 'decreaseDifficulty' ],
             after: {
                 999: { actions: 'removeScorePopup' },
                 1000: 'initial'
@@ -360,7 +361,7 @@ export const machine = setup({
                 RESET: { target: 'demo' },
                 REMOVE_POPUP: { actions: 'removeScorePopup' }
             },
-            entry: ['calculateScore', 'addPopup', 'increaseDifficulty'],
+            entry: ['winSchema', 'increaseDifficulty'],
             after: {
                 999: { actions: 'removeScorePopup' },
                 1000: 'initial',
