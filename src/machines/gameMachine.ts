@@ -72,9 +72,7 @@ export const machine = setup({
         },
         initial: {
             entry: 'setupGame',
-            after: {
-                400: 'demo'
-            }
+            after: { 400: 'demo' }
         },
         playing: {
             entry: 'playerTurn',

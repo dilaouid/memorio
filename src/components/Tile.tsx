@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { GridValue } from '../types/GridValue';
 
 import startImage from '../assets/tiles/start.jpg';
 import leftImage from '../assets/tiles/left.jpg';
@@ -9,14 +10,10 @@ import backImage from '../assets/tiles/back.jpg';
 import failImage from '../assets/tiles/fail.jpg';
 import successImage from '../assets/tiles/success.jpg';
 
-type TileProps = {
-  type: 'start' | 'left' | 'right' | 'top' | 'bottom' | 'back' | 'fail' | 'success';
-};
-
-export const Tile: React.FC<TileProps> = ({ type }) => {
+export const Tile: React.FC<{ type: GridValue }> = ({ type }) => {
     const [flipped, setFlipped] = useState(false);
   
-    const getImage = (type: TileProps['type']) => {
+    const getImage = (type: GridValue) => {
       switch (type) {
         case 'start': return startImage;
         case 'left': return leftImage;
