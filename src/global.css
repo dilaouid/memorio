@@ -76,6 +76,7 @@ body, #root {
 .score-popup {
     animation: fadeMoveUp 4s;
     text-shadow: 2px 2px 8px #1d2534;
+    z-index: 3;
 }
 
 .demo-blink {
