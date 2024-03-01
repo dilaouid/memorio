@@ -19,6 +19,8 @@ import {
   validSound,
 } from "../assets/sfx/sounds";
 import { getArrowForPathSegment } from "../utils/gameUtils";
+import { MuteMusic } from "./MuteMusic";
+
 interface GameProps {
   playBGMGame: () => void;
   stopBGMGame: () => void;
@@ -190,6 +192,7 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
 
   return (
     <div className="game-container">
+      <MuteMusic send={send} muteMusic={muteMusic} />
       { !startedGame && <Menu send={send} /> }
       { startedGame && <div>
         <div className="score-display">Score: {score}</div>
