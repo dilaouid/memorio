@@ -39,16 +39,16 @@ export const machine = setup({
   },
 }).createMachine({
   context: {
-    grid: [],
-    currentPath: [],
-    currentIndex: 0,
+    grid: [], // This will be a 2D array of strings.
+    currentPath: [], // This will be an array of objects with x and y properties.
+    currentIndex: 0, // This will be a number representing the current index in the path.
     isDemoPlaying: false,
     score: 0,
-    pathLength: Number(env.VITE_DEFAUT_PATHLENGTH),
-    demoDelay: Number(env.VITE_DEFAUT_DEMO_DELAY),
-    status: "demo",
-    popups: [],
-    startRoundTime: null,
+    pathLength: Number(env.VITE_DEFAUT_PATHLENGTH), // This will be a number representing the length of the path (used for difficulty).
+    demoDelay: Number(env.VITE_DEFAUT_DEMO_DELAY), // This will be a number representing the time for the demo to play (the larger the number, the slower the demo will play).
+    status: "demo", // the status for the lamp (demo, playing, success, error).
+    popups: [], // This will be an array of objects with id, score, top, and left properties, this is the popup playing to tell if you lose or win points.
+    startRoundTime: null, // This will be a number representing the time when the round started, to use a chronometer for the points
     startedGame: false,
   },
   id: "game",

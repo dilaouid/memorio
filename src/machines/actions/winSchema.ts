@@ -12,6 +12,7 @@ export const winSchemaAssign = (context: GameContext) => {
     const newPopup: ScorePopupProps = {
         id: `${new Date().getTime()}`,
         score: gainedPoints,
+        // Below, we're using the current path index to determine the position of the score popup.
         top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
         left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`
     };
@@ -19,7 +20,11 @@ export const winSchemaAssign = (context: GameContext) => {
     return {
         popups: [...context.popups, newPopup],
         score: context.score + gainedPoints,
+
+        // pathLength will MAYBE be increased by 1
         pathLength: random < 0.3 ? context.pathLength : newDifficulty(context),
+
+        // demoDelay will MAYBE be decreased
         demoDelay: random < 0.3 ? context.demoDelay : Math.max(context.demoDelay * 0.9, 100),
         status: 'success' as LampStatus
     };

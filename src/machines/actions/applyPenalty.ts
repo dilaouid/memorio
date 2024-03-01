@@ -6,11 +6,15 @@ export const applyPenaltyAssign = (context: GameContext) => {
     const penaltyPercent = import.meta.env.VITE_PENALTY_PERCENT;
     const pathLengthFactor = Math.max(context.currentPath.length, 1);
 
+    // Calculate the penalty based on the current score and the penalty percent.
     const penalty = (maxScoreForPath * penaltyPercent / 100) * pathLengthFactor;
     const newScore = Math.max(context.score - penalty, 0);
     const newPopup = {
         id: `${new Date().getTime()}`,
         score: -penalty,
+        
+
+        // Below, we're using the current path index to determine the position of the score popup.
         top: `${context.currentPath[context.currentIndex].y * 100}px`,
         left: `${context.currentPath[context.currentIndex].x * 100}px`
     };
