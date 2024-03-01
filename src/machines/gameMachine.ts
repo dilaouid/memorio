@@ -52,7 +52,7 @@ export const machine = setup({
     startedGame: false,
   },
   id: "game",
-  initial: "initial",
+  initial: "menu",
   on: {
     ADD_POPUP: {
       actions: "winSchema",
@@ -68,6 +68,11 @@ export const machine = setup({
         DEMO_END: "playing",
         MOVE: { actions: "updateGrid" },
         CLEAN_ARROW: { actions: "cleanArrow" },
+      },
+    },
+    menu: {
+      on: {
+        START: { target: "initial" },
       },
     },
     initial: {

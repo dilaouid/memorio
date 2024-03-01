@@ -10,7 +10,7 @@ import { Board } from "./Board";
 import { GridValue } from "../types/GridValue";
 import StatusLamp from "./StatusLamp";
 import ScorePopup from "./ScorePopup";
-
+import { Menu } from "./Menu/Menu";
 
 import {
   startSound,
@@ -32,6 +32,7 @@ export const Game: React.FC = () => {
     score,
     demoDelay,
     pathLength,
+    startedGame
   } = state.context;
   const gridSize = import.meta.env.VITE_GRID_SIZE as number;
 
@@ -165,7 +166,8 @@ export const Game: React.FC = () => {
 
   return (
     <div className="game-container">
-      <div style={{ filter: `saturate(0%) blur(5px)` }}>
+      { !startedGame && <Menu send={send} /> }
+      { startedGame && <div>
         <div className="score-display">Score: {score}</div>
         {isDemoPlaying && <div className="demo-blink">DEMO</div>}
         <Board grid={grid} />
@@ -179,7 +181,7 @@ export const Game: React.FC = () => {
           />
         ))}
         <StatusLamp status={status} gridSize={gridSize} />
-      </div>
+      </div> }
     </div>
   );
 };

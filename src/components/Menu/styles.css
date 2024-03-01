@@ -1,0 +1,92 @@
+@keyframes slideDownBounce {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.logo {
+  animation: slideDownBounce 1.5s ease forwards;
+  position: absolute;
+  top: -350px;
+  margin-left: -270px;
+  width: 550px;
+  z-index: 3;
+}
+
+@keyframes zoomFadeIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.how-to-play,
+.tile-behind,
+.tile-front {
+  animation: zoomFadeIn 1.9s ease forwards;
+}
+
+.tile-front:last-child {
+  animation: float 2s ease-in-out infinite;
+}
+
+.tile-behind,
+.tile-front {
+  box-shadow: 0 0 125px rgba(177, 118, 41, 0.19);
+}
+
+.tile-front {
+  box-shadow: 0 0 125px rgba(255, 220, 175, 0.19);
+}
+
+.button {
+  margin-top: 200px;
+  position: absolute;
+  margin-left: -190px;
+}
+
+.start-button {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+  position: absolute;
+  margin-left: -385px;
+  transition: 0.3s;
+  z-index: 4;
+}
+
+.start-button:hover {
+  transform: scale(0.9);
+  opacity: 0.8;
+  filter: hue-rotate(70deg);
+  transition: 0.3s;
+}
+
+.how-to-play-section {
+  position: absolute;
+  top: -250px;
+  margin-left: -370px;
+  z-index: 2;
+}
+
+.how-to-play-section img {
+  width: 820px;
+}
