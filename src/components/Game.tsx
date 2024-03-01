@@ -19,8 +19,14 @@ import {
   validSound,
 } from "../assets/sfx/sounds";
 import { getArrowForPathSegment } from "../utils/gameUtils";
+interface GameProps {
+  playBGMGame: () => void;
+  stopBGMGame: () => void;
+  stopBGMMenu: () => void;
+  playBGMMenu: () => void;
+}
 
-export const Game: React.FC = () => {
+export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGame, playBGMMenu }) => {
   const [state, send] = useMachine(machine);
   const {
     grid,
@@ -32,9 +38,27 @@ export const Game: React.FC = () => {
     score,
     demoDelay,
     pathLength,
-    startedGame
+    startedGame,
+    muteMusic
   } = state.context;
   const gridSize = import.meta.env.VITE_GRID_SIZE as number;
+
+
+  useEffect(() => {
+    if (startedGame && !muteMusic) {
+      playBGMGame();
+      stopBGMMenu();
+    } else if (startedGame && muteMusic) {
+      stopBGMGame();
+    } else if (!startedGame && !muteMusic) {
+      playBGMMenu();
+    } else if (!startedGame && muteMusic) {
+      stopBGMMenu();
+    } else {
+      stopBGMGame();
+      stopBGMMenu();
+    }
+  }, [startedGame, playBGMGame, stopBGMMenu, muteMusic, stopBGMGame, playBGMMenu]);
 
   useEffect(() => {
     if (state.value === "demo") {
