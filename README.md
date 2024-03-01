@@ -1,30 +1,20 @@
-# React + TypeScript + Vite
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dilaouid/memorio/media/cover.png" alt="Memorio - Cover Image" width="1280">
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<h1 align="center">Memorio</h1>
 
-Currently, two official plugins are available:
+<p align="center">
+  <img src="https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white" alt="React">
+  <img src="https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/-Vite-B73BFE?logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/-XState-000000?logo=xstate&logoColor=white" alt="XState">
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Welcome to Memorio! 🎮
 
-## Expanding the ESLint configuration
+Memorio is a dynamic memory game that challenges you to remember and replicate a path shown during a demo phase, using your keyboard's directional arrows. After watching a sequence of arrows light up on a grid, it's your turn to step up and trace the path from memory. Sounds simple? Think again! As you progress, the paths become more complex and the pressure mounts.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Ready to see how far your memory can take you? Dive into Memorio and set new high scores (if you can tho)
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+**Note:** Memorio is designed for keyboard interaction only. It's not designed for mobile or touch devices. Sorry mobile users! 😅
