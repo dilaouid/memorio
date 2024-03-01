@@ -1,114 +1,121 @@
-body, #root {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-image: url("/bg.jpg");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    user-select: none;
+body,
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-image: url("/bg.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  user-select: none;
 }
 
 .game-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .board {
-    display: grid;
-    gap: 1px;
-    border-color: #1d2534;
-    border: 10px solid #1d2534;
-    background-color: #1d2534;
-    border-radius: 20px;
-    box-shadow: 0 0 500px 5px #ff580052;
+  display: grid;
+  gap: 1px;
+  border-color: #1d2534;
+  border: 10px solid #1d2534;
+  background-color: #1d2534;
+  border-radius: 20px;
+  box-shadow: 0 0 500px 5px #ff580052;
 }
 
 .tile {
-    width: 80px;
-    height: 80px;
-    background-size: cover;
-    perspective: 1000px; 
-    margin: 0;
-    padding: 0;
-    border: 1px solid #1d2534;
+  width: 80px;
+  height: 80px;
+  background-size: cover;
+  perspective: 1000px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #1d2534;
 }
 
 .tileInner {
-    width: 100%;
-    height: 100%;
-    transition: transform 0.2s;
-    transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s;
+  transform-style: preserve-3d;
 }
 
 .tileFlipped {
-    transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
-.front, .back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
+.front,
+.back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
 }
 
 .back {
-    transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
 .status-lamp {
-    position: absolute;
+  position: absolute;
 }
 
 .score-display {
-    position: absolute;
-    top: -40px;
-    left: -10px; 
-    color: #fff;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 20px;
+  position: absolute;
+  top: -40px;
+  left: -10px;
+  color: #fff;
+  font-family: "Press Start 2P", cursive;
+  font-size: 20px;
 }
 
 .score-popup {
-    animation: fadeMoveUp 4s;
-    text-shadow: 2px 2px 8px #1d2534;
-    z-index: 3;
+  animation: fadeMoveUp 4s;
+  text-shadow: 2px 2px 8px #1d2534;
+  z-index: 3;
 }
 
 .demo-blink {
-    position: absolute;
-    color: #87cfff;
-    top: -45px;
-    right: 0;
-    animation: blink 2s infinite;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 30px;
+  position: absolute;
+  color: #87cfff;
+  top: -45px;
+  right: 0;
+  animation: blink 2s infinite;
+  font-family: "Press Start 2P", cursive;
+  font-size: 30px;
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes fadeMoveUp {
-    0% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    100% {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 
 .positive {
-    color: rgb(123, 255, 171);
+  color: rgb(123, 255, 171);
 }
 
 .negative {
-    color: rgb(255, 123, 123);
+  color: rgb(255, 123, 123);
 }
