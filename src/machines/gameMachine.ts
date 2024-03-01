@@ -50,6 +50,7 @@ export const machine = setup({
     popups: [], // This will be an array of objects with id, score, top, and left properties, this is the popup playing to tell if you lose or win points.
     startRoundTime: null, // This will be a number representing the time when the round started, to use a chronometer for the points
     startedGame: false,
+    muteMusic: false,
   },
   id: "game",
   initial: "menu",
@@ -60,6 +61,9 @@ export const machine = setup({
     REMOVE_POPUP: {
       actions: "removeScorePopup",
     },
+    MUTE: {
+      actions: assign({ muteMusic: ({context}) => !context.muteMusic }),
+    }
   },
   states: {
     demo: {

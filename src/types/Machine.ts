@@ -14,6 +14,7 @@ export interface GameContext {
     popups: ScorePopupProps[];
     startRoundTime: Date | null;
     startedGame: boolean;
+    muteMusic: boolean;
 }
  
 export type GameEvent =
@@ -25,4 +26,5 @@ export type GameEvent =
     | { type: 'FAIL_MOVE' }
     | { type: 'ADD_POPUP'; score: number }
     | { type: 'CLEAN_ARROW', position: { x: number; y: number } }
+    | { type: 'MUTE' }
     | { type: 'REMOVE_POPUP'; id: string };
