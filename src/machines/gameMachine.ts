@@ -49,6 +49,7 @@ export const machine = setup({
     status: "demo",
     popups: [],
     startRoundTime: null,
+    startedGame: false,
   },
   id: "game",
   initial: "initial",

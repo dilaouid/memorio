@@ -13,9 +13,11 @@ export interface GameContext {
     status: LampStatus;
     popups: ScorePopupProps[];
     startRoundTime: Date | null;
+    startedGame: boolean;
 }
  
 export type GameEvent =
+    | { type: 'START' }
     | { type: 'DEMO_END' }
     | { type: 'MOVE'; direction: GridValue; nextPosition: { x: number; y: number } }
     | { type: 'SUCCESS_MOVE' }
