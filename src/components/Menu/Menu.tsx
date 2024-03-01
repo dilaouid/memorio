@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import logoImage from "../../assets/menu/logo.png";
 import howToPlayImage from "../../assets/menu/how-to-play.png";
@@ -6,6 +6,8 @@ import startFrameImage from "../../assets/menu/start-frame.png";
 import startButtonImage from "../../assets/menu/start-button.png";
 
 import "./styles.css";
+import useSound from "use-sound";
+import { bgmGame, bgmMenu } from "../../assets/sfx/sounds";
 
 
 type MenuProps = {
@@ -15,6 +17,13 @@ type MenuProps = {
 
 
 export const Menu: React.FC<MenuProps> = ({ send }) => {
+  
+  const [playBGMGame] = useSound(bgmGame, { loop: true});
+  const [playBGMMenu, { stop }] = useSound(bgmMenu, { loop: true});
+
+  useEffect(() => {
+    playBGMMenu();
+  }, [playBGMMenu]);
 
   return (
     <div style={{ position: "absolute", zIndex: 5 }}>
@@ -29,6 +38,8 @@ export const Menu: React.FC<MenuProps> = ({ send }) => {
           src={startButtonImage}
           alt="Start the game"
           onClick={() => {
+            stop();
+            playBGMGame();
             send({ type: "START" });
           }}
         />
