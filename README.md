@@ -35,7 +35,9 @@ After a sequence of arrows lights up on a grid, it's your turn to memorize and t
 - `VITE_GRID_SIZE=7`: Grid size (rows and columns).
 - `VITE_DEFAUT_PATHLENGTH=3`: Default number of moves at the start.
 - `VITE_DEFAUT_PATHLENGTH_MAX=15`: Maximum number of moves.
+- `VITE_HARDCORE_PATHLENGTH_MAX=25`: Maximum number of moves in hardcore mode.
 - `VITE_DEFAUT_DEMO_DELAY=600`: Demo phase duration in milliseconds.
+- `VITE_HARDCORE_DELAY=150`: Hardcore mode demo phase duration.
 - `VITE_PENALTY_PERCENT=25`: Penalty percentage after a failure.
 
 ### Play Now
