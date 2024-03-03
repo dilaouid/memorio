@@ -18,7 +18,7 @@ import {
   invalidSound,
   validSound,
 } from "../assets/sfx/sounds";
-import { getArrowForPathSegment } from "../utils/gameUtils";
+import { getArrowForPathSegment, setInitialDemoIndex } from "../utils/gameUtils";
 import { MuteMusic } from "./MuteMusic";
 
 interface GameProps {
@@ -41,9 +41,16 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     demoDelay,
     pathLength,
     startedGame,
-    muteMusic
+    muteMusic,
+    isHardcoreMode,
+    isSlowMode
   } = state.context;
   const gridSize = import.meta.env.VITE_GRID_SIZE as number;
+
+  const [playStart] = useSound(startSound);
+  const [playValid] = useSound(validSound);
+  const [playFlip] = useSound(flipSound);
+  const [playInvalid] = useSound(invalidSound);
 
 
   useEffect(() => {
@@ -64,9 +71,10 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
 
   useEffect(() => {
     if (state.value === "demo") {
-      let demoIndex = 1;
+      let demoIndex = setInitialDemoIndex({ currentPath, isHardcoreMode, pathLength });
       const showNextArrow = () => {
-        if (demoIndex < pathLength) {
+        const condition = isHardcoreMode ? demoIndex >= 1 : demoIndex < pathLength;
+        if (condition) {
           const currentSegment = currentPath[demoIndex - 1];
           const nextSegment = currentPath[demoIndex];
           if (nextSegment && currentSegment) {
@@ -81,7 +89,7 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
             });
           }
 
-          if (!nextSegment && demoIndex < pathLength) {
+          if (!nextSegment && condition) {
             send({ type: "CLEAN_ARROW", position: currentSegment });
             send({ type: "CLEAN_ARROW", position: currentPath[demoIndex] });
             send({ type: "CLEAN_ARROW", position: currentPath[demoIndex - 2] });
@@ -94,8 +102,8 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
             send({ type: "CLEAN_ARROW", position: nextSegment });
           }, demoDelay + demoDelay / 10);
 
-          demoIndex++;
-          if (demoIndex < pathLength) {
+          demoIndex = isHardcoreMode ? demoIndex - 1 : demoIndex + 1;
+          if (isHardcoreMode ? demoIndex >= 1 : demoIndex < pathLength) {
             setTimeout(showNextArrow, demoDelay - demoDelay / 2);
           } else {
             setTimeout(() => {
@@ -110,11 +118,6 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.value, currentPath, demoDelay, pathLength]);
-
-  const [playStart] = useSound(startSound);
-  const [playValid] = useSound(validSound);
-  const [playFlip] = useSound(flipSound);
-  const [playInvalid] = useSound(invalidSound);
 
   // start the game
   useEffect(() => {
