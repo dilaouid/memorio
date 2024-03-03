@@ -1,5 +1,5 @@
 import React from "react";
-import { MdSlowMotionVideo } from 'react-icons/md';
+import { GiSnail } from "react-icons/gi";
 import { FaSkull } from "react-icons/fa";
 
 type DifficultyProps = {
@@ -16,16 +16,16 @@ export const Difficulty: React.FC<DifficultyProps> = ({ send, isHardcoreMode, is
     <FaSkull
       style={{
         color: isHardcoreMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.3)',
-        cursor: 'pointer',
+        cursor: isDemoPlaying ? 'not-allowed' : 'pointer',
         marginRight: '10px',
       }}
       onClick={() => isDemoPlaying ? null : send({ type: 'SET_HARD_MODE' })}
       size="54px"
     />
-    <MdSlowMotionVideo
+    <GiSnail
       style={{
         color: isSlowMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.3)',
-        cursor: 'pointer',
+        cursor: isDemoPlaying ? 'not-allowed' : 'pointer',
       }}
       onClick={() => isDemoPlaying ? null : send({ type: 'SET_SLOW_MODE' })}
       size="54px"
