@@ -27,6 +27,7 @@ export const machine = setup({
     winSchema: assign(({ context }) => actions.win(context)),
     removeScorePopup: assign(({ context }) => actions.removePopup(context)),
     playerTurn: assign(() => actions.playerTurn()),
+    setHardcore: assign(({ context }) => actions.setHardcore(context)),
   },
   guards: {
     isCorrectMove: function ({ context, event }) {
@@ -67,7 +68,13 @@ export const machine = setup({
     },
     MUTE: {
       actions: assign({ muteMusic: ({context}) => !context.muteMusic }),
-    }
+    },
+    SET_HARD_MODE: {
+      actions: "setHardcore",
+    },
+    SET_SLOW_MODE: {
+      actions: assign({ isSlowMode: ({context}) => !context.isSlowMode }),
+    },
   },
   states: {
     demo: {

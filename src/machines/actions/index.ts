@@ -6,6 +6,7 @@ import { applyPenaltyAssign } from "./applyPenalty";
 import { winSchemaAssign } from "./winSchema";
 import { playerTurnAssign } from "./playerTurn";
 import { removeScorePopupAssign } from "./removeScorePopup";
+import { setHardcoreAssign } from "./setHardcore";
 
 export const actions = {
     setup: setupGameAssign,
@@ -15,5 +16,6 @@ export const actions = {
     penalty: applyPenaltyAssign,
     win: winSchemaAssign,
     playerTurn: playerTurnAssign,
-    removePopup: removeScorePopupAssign
+    removePopup: removeScorePopupAssign,
+    setHardcore: setHardcoreAssign,
 }
