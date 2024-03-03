@@ -20,6 +20,7 @@ import {
 } from "../assets/sfx/sounds";
 import { getArrowForPathSegment, setInitialDemoIndex } from "../utils/gameUtils";
 import { MuteMusic } from "./MuteMusic";
+import { Difficulty } from "./Difficulty/Difficulty";
 
 interface GameProps {
   playBGMGame: () => void;
@@ -195,10 +196,11 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
 
   return (
     <div className="game-container">
+      { startedGame && <Difficulty send={send} isHardcoreMode={isHardcoreMode} isSlowMode={isSlowMode} isDemoPlaying={isDemoPlaying} /> }
       <MuteMusic send={send} muteMusic={muteMusic} />
       { !startedGame && <Menu send={send} /> }
       { startedGame && <div>
-        <div className="score-display">Score: {score}</div>
+        <div className="score-display">Score: {score} { isHardcoreMode || isSlowMode ? <span>x5</span> : <></> } </div>
         {isDemoPlaying && <div className="demo-blink">DEMO</div>}
         <Board grid={grid} />
         {popups.map((popup) => (
