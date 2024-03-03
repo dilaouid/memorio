@@ -93,10 +93,16 @@ export const getArrowForPathSegment = (start: {x: number, y: number}, end: {x: n
     return 'back';
 };
 
-export const calculateScore = (context: { score: number, currentPath: { x: number; y: number }[], pathLength: number, currentIndex: number, startRoundTime: Date | null }): number => {
+export const calculateScore = (context: { score: number, currentPath: { x: number; y: number }[], pathLength: number, currentIndex: number, startRoundTime: Date | null, isSlowMode: boolean, isHardcoreMode: boolean }): number => {
   if (!context.startRoundTime) {
     return context.score;
   }
+
+  let factor = 1
+  if (context.isHardcoreMode)
+    factor = 2;
+  if (context.isSlowMode)
+    factor = 0.5;
 
   const endTime = new Date();
   const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
@@ -104,7 +110,7 @@ export const calculateScore = (context: { score: number, currentPath: { x: numbe
   const pathLengthFactor = Math.max(context.currentPath.length, 1);
 
   let newScore = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
-  newScore *= pathLengthFactor;
+  newScore *= pathLengthFactor * factor;
   return Math.floor(newScore);
 }
 
