@@ -28,6 +28,7 @@ export const machine = setup({
     removeScorePopup: assign(({ context }) => actions.removePopup(context)),
     playerTurn: assign(() => actions.playerTurn()),
     setHardcore: assign(({ context }) => actions.setHardcore(context)),
+    setSlowMode: assign(({ context }) => actions.setSlowMode(context)),
   },
   guards: {
     isCorrectMove: function ({ context, event }) {
@@ -61,19 +62,19 @@ export const machine = setup({
   initial: "menu",
   on: {
     ADD_POPUP: {
-      actions: "winSchema",
+      actions: "winSchema"
     },
     REMOVE_POPUP: {
-      actions: "removeScorePopup",
+      actions: "removeScorePopup"
     },
     MUTE: {
-      actions: assign({ muteMusic: ({context}) => !context.muteMusic }),
+      actions: assign({ muteMusic: ({context}) => !context.muteMusic })
     },
     SET_HARD_MODE: {
-      actions: "setHardcore",
+      actions: "setHardcore"
     },
     SET_SLOW_MODE: {
-      actions: assign({ isSlowMode: ({context}) => !context.isSlowMode }),
+      actions: "setSlowMode"
     },
   },
   states: {
