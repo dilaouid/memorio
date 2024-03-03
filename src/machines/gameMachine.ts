@@ -51,6 +51,10 @@ export const machine = setup({
     startRoundTime: null, // This will be a number representing the time when the round started, to use a chronometer for the points
     startedGame: false,
     muteMusic: false,
+    savedDemoDelay: Number(env.VITE_DEFAUT_DEMO_DELAY),
+    hardCoreDelay: Number(env.VITE_HARDCORE_DELAY),
+    isHardcoreMode: false,
+    isSlowMode: false,
   },
   id: "game",
   initial: "menu",

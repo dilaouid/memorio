@@ -15,6 +15,10 @@ export interface GameContext {
     startRoundTime: Date | null;
     startedGame: boolean;
     muteMusic: boolean;
+    savedDemoDelay: number;
+    hardCoreDelay: number;
+    isHardcoreMode: boolean;
+    isSlowMode: boolean;
 }
  
 export type GameEvent =
@@ -27,4 +31,6 @@ export type GameEvent =
     | { type: 'ADD_POPUP'; score: number }
     | { type: 'CLEAN_ARROW', position: { x: number; y: number } }
     | { type: 'MUTE' }
+    | { type: 'SET_HARD_MODE' }
+    | { type: 'SET_SLOW_MODE' }
     | { type: 'REMOVE_POPUP'; id: string };
