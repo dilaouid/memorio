@@ -116,3 +116,12 @@ export const isValidMove = (context: { currentIndex: number, pathLength: number,
     event.nextPosition.x === context.currentPath[context.currentIndex + 1].x && 
     event.nextPosition.y === context.currentPath[context.currentIndex + 1].y;
 }
+
+export const setInitialDemoIndex = (context: { currentPath: { x: number; y: number }[], isHardcoreMode: boolean, pathLength: number }): number => {
+  // if it's hardcore mode, we start at the end of the path
+  if (context.isHardcoreMode) {
+    return context.pathLength - 1;
+  } else {
+    return 1;
+  }
+}
