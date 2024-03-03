@@ -119,3 +119,13 @@ body,
 .negative {
   color: rgb(255, 123, 123);
 }
+
+.hardcore {
+  color: #ff2a00;
+  font-size: 14px;
+}
+
+.slow {
+  color: #f4905b;
+  font-size: 14px;
+}
