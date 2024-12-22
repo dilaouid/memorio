@@ -33,4 +33,5 @@ export type GameEvent =
     | { type: 'MUTE' }
     | { type: 'SET_HARD_MODE' }
     | { type: 'SET_SLOW_MODE' }
+    | { type: "PLAY_SOUND"; audioUrl: string }
     | { type: 'REMOVE_POPUP'; id: string };

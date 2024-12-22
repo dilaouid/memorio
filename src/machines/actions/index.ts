@@ -8,6 +8,7 @@ import { playerTurnAssign } from "./playerTurn";
 import { removeScorePopupAssign } from "./removeScorePopup";
 import { setHardcoreAssign } from "./setHardcore";
 import { setSlowModeAssign } from "./setSlowMode";
+import { playSoundAssign } from "./playSound";
 
 export const actions = {
     setup: setupGameAssign,
@@ -19,5 +20,6 @@ export const actions = {
     playerTurn: playerTurnAssign,
     removePopup: removeScorePopupAssign,
     setHardcore: setHardcoreAssign,
-    setSlowMode: setSlowModeAssign
+    setSlowMode: setSlowModeAssign,
+    playSound: playSoundAssign
 }

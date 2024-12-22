@@ -3,6 +3,7 @@ import { assign, setup } from "xstate";
 import { isValidMove } from "../utils/gameUtils";
 import { GameContext, GameEvent } from "../types/Machine";
 import { actions } from "./actions";
+import { keyboardListener } from "./actors/keyboardListener";
 
 const env = import.meta.env;
 
@@ -10,6 +11,9 @@ export const machine = setup({
   types: {
     context: {} as GameContext,
     events: {} as GameEvent,
+  },
+  actors: {
+    keyboardListener: keyboardListener,
   },
   actions: {
     setupGame: assign(({ context }) => actions.setup(context)),
@@ -29,6 +33,7 @@ export const machine = setup({
     playerTurn: assign(() => actions.playerTurn()),
     setHardcore: assign(({ context }) => actions.setHardcore(context)),
     setSlowMode: assign(({ context }) => actions.setSlowMode(context)),
+    playSound: ({ context, event }) => actions.playSound(context, event),
   },
   guards: {
     isCorrectMove: function ({ context, event }) {
@@ -62,19 +67,19 @@ export const machine = setup({
   initial: "menu",
   on: {
     ADD_POPUP: {
-      actions: "winSchema"
+      actions: "winSchema",
     },
     REMOVE_POPUP: {
-      actions: "removeScorePopup"
+      actions: "removeScorePopup",
     },
     MUTE: {
-      actions: assign({ muteMusic: ({context}) => !context.muteMusic })
+      actions: assign({ muteMusic: ({ context }) => !context.muteMusic }),
     },
     SET_HARD_MODE: {
-      actions: "setHardcore"
+      actions: "setHardcore",
     },
     SET_SLOW_MODE: {
-      actions: "setSlowMode"
+      actions: "setSlowMode",
     },
   },
   states: {
@@ -97,6 +102,17 @@ export const machine = setup({
     },
     playing: {
       entry: "playerTurn",
+      invoke: [
+        {
+          src: "keyboardListener",
+          input: ({ context }) => ({
+            isDemoPlaying: context.isDemoPlaying,
+            status: context.status,
+            currentPath: context.currentPath,
+            currentIndex: context.currentIndex,
+          }),
+        },
+      ],
       on: {
         MOVE: [
           {
@@ -106,6 +122,9 @@ export const machine = setup({
           },
           { target: "failMove" },
         ],
+        PLAY_SOUND: {
+          actions: "playSound",
+        },
       },
     },
     validateMove: {
