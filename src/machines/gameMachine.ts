@@ -34,6 +34,8 @@ export const machine = setup({
     setHardcore: assign(({ context }) => actions.setHardcore(context)),
     setSlowMode: assign(({ context }) => actions.setSlowMode(context)),
     playSound: ({ context, event }) => actions.playSound(context, event),
+    playStatusSound: ({ context }) => actions.playStatusSound(context),
+    handleFlipEnd: ({ context, event }) => actions.handleFlipEnd(context, event),
   },
   guards: {
     isCorrectMove: function ({ context, event }) {
@@ -62,6 +64,9 @@ export const machine = setup({
     hardCoreDelay: Number(env.VITE_HARDCORE_DELAY),
     isHardcoreMode: false,
     isSlowMode: false,
+    flippedTiles: [], // This will be an array of objects with x and y properties, this is the tiles that are flipped.
+    demoFlipQueue: [], // This will be an array of objects with x and y properties, this is the tiles that are flipped in the demo.
+    isFlipping: false, // This will be a boolean to tell if the tiles are flipping.
   },
   id: "game",
   initial: "menu",
@@ -124,14 +129,15 @@ export const machine = setup({
         ],
         PLAY_SOUND: {
           actions: "playSound",
-        },
+        }
       },
     },
     validateMove: {
-      always: [{ target: "successMove" }, { target: "failMove" }],
+      entry: ["playStatusSound"],
+      always: [{ target: "successMove" }, { target: "failMove" }, { target: "playing" }],
     },
     successMove: {
-      entry: ["updateGrid"],
+      entry: ["updateGrid", "playStatusSound"],
       always: [
         {
           target: "completePath",
@@ -144,7 +150,7 @@ export const machine = setup({
       on: {
         REMOVE_POPUP: { actions: "removeScorePopup" },
       },
-      entry: ["updateGrid", "applyPenalty"],
+      entry: ["updateGrid", "applyPenalty", "playStatusSound"],
       after: {
         999: { actions: "removeScorePopup" },
         1000: "initial",
@@ -154,7 +160,7 @@ export const machine = setup({
       on: {
         REMOVE_POPUP: { actions: "removeScorePopup" },
       },
-      entry: "winSchema",
+      entry: ["winSchema", "playStatusSound"],
       after: {
         999: { actions: "removeScorePopup" },
         1000: "initial",

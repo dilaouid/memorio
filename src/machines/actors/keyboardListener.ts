@@ -15,7 +15,8 @@ export const keyboardListener = fromCallback(({ input, sendBack }) => {
         const currentPath = context.currentPath ?? [];
         const currentIndex = context.currentIndex ?? 0;
 
-        if (isDemoPlaying || status === "success" || context.status === "error") return;
+        if (isDemoPlaying || status === "success" || context.status === "error")
+            return;
 
         let direction: GridValue | null = null;
         let moveDirection: { x: number; y: number } | null = null;
@@ -62,7 +63,6 @@ export const keyboardListener = fromCallback(({ input, sendBack }) => {
             return;
 
         sendBack({ type: "PLAY_SOUND", audioUrl: "/memorio/src/assets/sfx/flip.wav" });
-        sendBack({ type: "PLAY_FLIP" });
         sendBack({ 
             type: "MOVE", 
             direction, 

@@ -3,19 +3,12 @@ import { useMachine } from "@xstate/react";
 
 import { machine } from "../machines/gameMachine";
 
-import useSound from "use-sound";
-
 import { Board } from "./Board";
 
 import StatusLamp from "./StatusLamp";
 import ScorePopup from "./ScorePopup";
 import { Menu } from "./Menu/Menu";
 
-import {
-  startSound,
-  invalidSound,
-  validSound,
-} from "../assets/sfx/sounds";
 import { getArrowForPathSegment, setInitialDemoIndex } from "../utils/gameUtils";
 import { MuteMusic } from "./MuteMusic";
 import { Difficulty } from "./Difficulty";
@@ -45,10 +38,6 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     isSlowMode
   } = state.context;
   const gridSize = import.meta.env.VITE_GRID_SIZE as number;
-
-  const [playStart] = useSound(startSound);
-  const [playValid] = useSound(validSound);
-  const [playInvalid] = useSound(invalidSound);
 
 
   useEffect(() => {
@@ -106,6 +95,7 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
           } else {
             setTimeout(() => {
               send({ type: "DEMO_END" });
+              send({ type: "PLAY_SOUND", audioUrl: "/memorio/src/assets/sfx/start.wav" });
             }, demoDelay + demoDelay / 5);
           }
         } else {
@@ -116,23 +106,6 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.value, currentPath, demoDelay, pathLength]);
-
-  // start the game
-  useEffect(() => {
-    switch (status) {
-      case "yourTurn":
-        playStart();
-        break;
-      case "error":
-        playInvalid();
-        break;
-      case "success":
-        playValid();
-        break;
-      default:
-        break;
-    }
-  }, [status, playStart, playValid, playInvalid]);
 
   return (
     <div className="game-container">

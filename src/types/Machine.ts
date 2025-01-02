@@ -19,12 +19,16 @@ export interface GameContext {
     hardCoreDelay: number;
     isHardcoreMode: boolean;
     isSlowMode: boolean;
+    flippedTiles: { x: number; y: number }[];
+    demoFlipQueue: { x: number; y: number, type: GridValue }[];
+    isFlipping: boolean,
 }
  
 export type GameEvent =
     | { type: 'START' }
     | { type: 'DEMO_END' }
     | { type: 'MOVE'; direction: GridValue; nextPosition: { x: number; y: number } }
+    | { type: "TILE_FLIP_END"; x: number; y: number }
     | { type: 'SUCCESS_MOVE' }
     | { type: 'COMPLETE_PATH' }
     | { type: 'FAIL_MOVE' }
