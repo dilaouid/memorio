@@ -1,8 +1,8 @@
 import { assign, setup } from "xstate";
 
-import { isValidMove } from "../utils/gameUtils";
-import { actions } from "./actions";
-import { keyboardListener } from "./actors/keyboardListener";
+import { isValidMove } from "@utils/gameUtils";
+import { actions } from "@machines/actions";
+import { keyboardListener } from "@machines/actors/keyboardListener";
 
 const env = import.meta.env;
 

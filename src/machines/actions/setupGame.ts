@@ -1,4 +1,4 @@
-import { generateInitialGrid, generatePath } from "../../utils/gameUtils";
+import { generateInitialGrid, generatePath } from "@utils/gameUtils";
 
 export const setupGameAssign = (context: GameContext) => {
     const pathLength = context.pathLength;

@@ -1,4 +1,4 @@
-import { calculateScore } from "../../utils/gameUtils";
+import { calculateScore } from "@utils/gameUtils";
 
 const PATH_LENGTH_MAX = import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX as number;
 const PATH_LENGTH_HARDCORE_MAX = import.meta.env.VITE_HARDCORE_PATHLENGTH_MAX as number;

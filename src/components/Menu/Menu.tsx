@@ -1,18 +1,16 @@
 import React from "react";
 
-import logoImage from "../../assets/menu/logo.png";
-import howToPlayImage from "../../assets/menu/how-to-play.png";
-import startFrameImage from "../../assets/menu/start-frame.png";
-import startButtonImage from "../../assets/menu/start-button.png";
+import logoImage from "@assets/menu/logo.png";
+import howToPlayImage from "@assets/assets/menu/how-to-play.png";
+import startFrameImage from "@assets/menu/start-frame.png";
+import startButtonImage from "@assets/menu/start-button.png";
 
 import "./styles.css";
-
 
 type MenuProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   send: (event: any) => void;
 };
-
 
 export const Menu: React.FC<MenuProps> = ({ send }) => {
   return (

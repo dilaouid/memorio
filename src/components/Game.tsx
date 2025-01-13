@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
 import { useMachine } from "@xstate/react";
 
-import { machine } from "../machines/gameMachine";
+import { machine } from "@machines/gameMachine";
 
-import { Board } from "./Board";
+import { Board } from "@components/Board";
 
-import StatusLamp from "./StatusLamp";
-import ScorePopup from "./ScorePopup";
-import { Menu } from "./Menu/Menu";
+import StatusLamp from "@components/StatusLamp";
+import ScorePopup from "@components/ScorePopup";
+import { Menu } from "@components/Menu/Menu";
 
-import { getArrowForPathSegment, setInitialDemoIndex } from "../utils/gameUtils";
-import { MuteMusic } from "./MuteMusic";
-import { Difficulty } from "./Difficulty";
-import { Score } from "./Score";
+import { getArrowForPathSegment, setInitialDemoIndex } from "@utils/gameUtils";
+import { MuteMusic } from "@components/MuteMusic";
+import { Difficulty } from "@components/Difficulty";
+import { Score } from "@components/Score";
 
 interface GameProps {
   playBGMGame: () => void;

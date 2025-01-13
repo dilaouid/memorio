@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-import startImage from '../assets/tiles/start.jpg';
-import leftImage from '../assets/tiles/left.jpg';
-import rightImage from '../assets/tiles/right.jpg';
-import topImage from '../assets/tiles/top.jpg';
-import bottomImage from '../assets/tiles/bottom.jpg';
-import backImage from '../assets/tiles/back.jpg';
-import failImage from '../assets/tiles/fail.jpg';
-import successImage from '../assets/tiles/success.jpg';
+import startImage from '@assets/tiles/start.jpg';
+import leftImage from '@assets/tiles/left.jpg';
+import rightImage from '@assets/tiles/right.jpg';
+import topImage from '@assets/tiles/top.jpg';
+import bottomImage from '@assets/tiles/bottom.jpg';
+import backImage from '@assets/tiles/back.jpg';
+import failImage from '@assets/tiles/fail.jpg';
+import successImage from '@assets/tiles/success.jpg';
 
 export const Tile: React.FC<{ type: GridValue }> = ({ type }) => {
     const [flipped, setFlipped] = useState(false);

@@ -1,9 +1,9 @@
 import React from "react";
 
-import demoLamp from "../assets/lamp/demo.png";
-import errorLamp from "../assets/lamp/error.png";
-import successLamp from "../assets/lamp/success.png";
-import yourTurnLamp from "../assets/lamp/your_turn.png";
+import demoLamp from "@assets/lamp/demo.png";
+import errorLamp from "@assets/lamp/error.png";
+import successLamp from "@assets/lamp/success.png";
+import yourTurnLamp from "@assets/lamp/your_turn.png";
 
 type StatusLampProps = {
   status: "demo" | "error" | "success" | "yourTurn";
