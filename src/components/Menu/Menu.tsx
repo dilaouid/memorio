@@ -1,7 +1,7 @@
 import React from "react";
 
 import logoImage from "@assets/menu/logo.png";
-import howToPlayImage from "@assets/assets/menu/how-to-play.png";
+import howToPlayImage from "@assets/menu/how-to-play.png";
 import startFrameImage from "@assets/menu/start-frame.png";
 import startButtonImage from "@assets/menu/start-button.png";
 
