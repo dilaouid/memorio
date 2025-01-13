@@ -1,5 +1,3 @@
-import type { LampStatus } from "../../types/LampStatus";
-
 export const playerTurnAssign = () => {
     return {
         isDemoPlaying: false,

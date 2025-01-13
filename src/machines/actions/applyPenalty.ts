@@ -1,6 +1,3 @@
-import type { LampStatus } from "../../types/LampStatus";
-import type { GameContext } from "../../types/Machine";
-
 export const applyPenaltyAssign = (context: GameContext) => {
     const maxScoreForPath = 100;
     const penaltyPercent = import.meta.env.VITE_PENALTY_PERCENT;

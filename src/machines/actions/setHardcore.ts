@@ -1,5 +1,3 @@
-import type { GameContext } from "../../types/Machine";
-
 export const setHardcoreAssign = (context: GameContext) => {
     if (context.isDemoPlaying) return {};
     return {

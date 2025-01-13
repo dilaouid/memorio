@@ -1,5 +1,3 @@
-import type { GameContext, GameEvent } from "../../types/Machine";
-
 export const handleFlipEnd = (context: GameContext, event: GameEvent) => {
     if (event.type !== "TILE_FLIP_END") return context.flippedTiles;
     context.isFlipping = false;

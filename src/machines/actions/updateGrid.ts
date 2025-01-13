@@ -1,5 +1,3 @@
-import type { GameContext, GameEvent } from "../../types/Machine";
-
 export const updateGridAssign = (context: GameContext, event: GameEvent) => {
     if (event.type !== 'MOVE' ) return context.grid;
     const newGrid = context.grid.map(row => [...row]);

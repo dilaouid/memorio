@@ -4,8 +4,6 @@ import { isValidMove } from "../utils/gameUtils";
 import { actions } from "./actions";
 import { keyboardListener } from "./actors/keyboardListener";
 
-import type { GameContext, GameEvent } from "../types/Machine";
-
 const env = import.meta.env;
 
 export const machine = setup({

@@ -1,9 +1,5 @@
 import { fromCallback } from "xstate";
 
-import type { GameContext } from "../../types/Machine";
-import type { GridValue } from "../../types/GridValue";
-
-
 const env = import.meta.env;
 
 export const keyboardListener = fromCallback(({ input, sendBack }) => {

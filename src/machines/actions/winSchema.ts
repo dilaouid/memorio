@@ -1,7 +1,3 @@
-import type { LampStatus } from "../../types/LampStatus";
-import type { ScorePopupProps } from "../../types/ScorePopupProps";
-import type { GameContext } from "../../types/Machine";
-
 import { calculateScore } from "../../utils/gameUtils";
 
 const PATH_LENGTH_MAX = import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX as number;

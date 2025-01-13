@@ -1,5 +1,3 @@
-import type { GameContext } from "../../types/Machine";
-
 export const playStatusSound = (context: GameContext) => {
   switch (context.status) {
     case "yourTurn": {

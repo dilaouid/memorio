@@ -1,8 +1,6 @@
 import React from "react";
 import { Tile } from "./Tile";
 
-import type { GridValue } from "../types/GridValue";
-
 type BoardProps = {
   grid: GridValue[][];
 };

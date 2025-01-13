@@ -1,5 +1,4 @@
 import React from "react";
-import type { ScorePopupProps } from "../types/ScorePopupProps";
 
 const ScorePopup: React.FC<ScorePopupProps> = ({ score, top, left }) => {
   const color = score > 0 ? "green" : "red";
