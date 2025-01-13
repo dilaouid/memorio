@@ -1,6 +1,6 @@
-import { GridValue } from "../types/GridValue";
-import { LampStatus } from "../types/LampStatus";
-import { ScorePopupProps } from "../types/ScorePopupProps";
+import type { GridValue } from "../types/GridValue";
+import type { LampStatus } from "../types/LampStatus";
+import type { ScorePopupProps } from "../types/ScorePopupProps";
 
 export interface GameContext {
     grid: GridValue[][];

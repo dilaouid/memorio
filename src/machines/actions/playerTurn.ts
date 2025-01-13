@@ -1,4 +1,4 @@
-import { LampStatus } from "../../types/LampStatus";
+import type { LampStatus } from "../../types/LampStatus";
 
 export const playerTurnAssign = () => {
     return {

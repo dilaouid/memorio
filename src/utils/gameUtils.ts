@@ -1,4 +1,4 @@
-import { GridValue } from "../types/GridValue";
+import type { GridValue } from "../types/GridValue";
 
 const gridLength = import.meta.env.VITE_GRID_SIZE;
 

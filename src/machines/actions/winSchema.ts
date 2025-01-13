@@ -1,7 +1,8 @@
-import { LampStatus } from "../../types/LampStatus";
-import { ScorePopupProps } from "../../types/ScorePopupProps";
+import type { LampStatus } from "../../types/LampStatus";
+import type { ScorePopupProps } from "../../types/ScorePopupProps";
+import type { GameContext } from "../../types/Machine";
+
 import { calculateScore } from "../../utils/gameUtils";
-import { GameContext } from "../../types/Machine";
 
 const PATH_LENGTH_MAX = import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX as number;
 const PATH_LENGTH_HARDCORE_MAX = import.meta.env.VITE_HARDCORE_PATHLENGTH_MAX as number;

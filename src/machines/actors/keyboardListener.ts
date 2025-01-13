@@ -1,6 +1,7 @@
 import { fromCallback } from "xstate";
-import { GameContext } from "../../types/Machine";
-import { GridValue } from "../../types/GridValue";
+
+import type { GameContext } from "../../types/Machine";
+import type { GridValue } from "../../types/GridValue";
 
 
 const env = import.meta.env;

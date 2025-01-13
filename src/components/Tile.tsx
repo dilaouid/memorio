@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GridValue } from '../types/GridValue';
+import type { GridValue } from '../types/GridValue';
 
 import startImage from '../assets/tiles/start.jpg';
 import leftImage from '../assets/tiles/left.jpg';

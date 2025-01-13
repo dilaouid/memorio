@@ -1,4 +1,4 @@
-import { GameContext } from "../../types/Machine";
+import type { GameContext } from "../../types/Machine";
 
 export const setSlowModeAssign = (context: GameContext) => {
     if (context.isDemoPlaying) return {};

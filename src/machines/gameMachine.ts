@@ -1,9 +1,10 @@
 import { assign, setup } from "xstate";
 
 import { isValidMove } from "../utils/gameUtils";
-import { GameContext, GameEvent } from "../types/Machine";
 import { actions } from "./actions";
 import { keyboardListener } from "./actors/keyboardListener";
+
+import type { GameContext, GameEvent } from "../types/Machine";
 
 const env = import.meta.env;
 
