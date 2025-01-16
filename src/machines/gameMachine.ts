@@ -2,7 +2,7 @@ import { assign, setup } from "xstate";
 
 import { isValidMove } from "@utils/gameUtils";
 import { actions } from "@machines/actions";
-import { keyboardListener } from "@machines/actors/keyboardListener";
+import { keyboardListener, mouseListener } from "@machines/actors";
 
 const env = import.meta.env;
 
@@ -12,7 +12,8 @@ export const machine = setup({
     events: {} as GameEvent,
   },
   actors: {
-    keyboardListener: keyboardListener,
+    keyboardListener,
+    mouseListener
   },
   actions: {
     setupGame: assign(({ context }) => actions.setup(context)),
@@ -109,6 +110,15 @@ export const machine = setup({
       invoke: [
         {
           src: "keyboardListener",
+          input: ({ context }) => ({
+            isDemoPlaying: context.isDemoPlaying,
+            status: context.status,
+            currentPath: context.currentPath,
+            currentIndex: context.currentIndex,
+          }),
+        },
+        {
+          src: "mouseListener",
           input: ({ context }) => ({
             isDemoPlaying: context.isDemoPlaying,
             status: context.status,

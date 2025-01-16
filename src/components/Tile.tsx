@@ -9,7 +9,15 @@ import backImage from '@assets/tiles/back.jpg';
 import failImage from '@assets/tiles/fail.jpg';
 import successImage from '@assets/tiles/success.jpg';
 
-export const Tile: React.FC<{ type: GridValue }> = ({ type }) => {
+type TCoordinates = { x: number; y: number };
+type TMouseEmitter = { __mouseListener?: { emit: (pos: TCoordinates) => void } }
+
+interface TileProps {
+  type: GridValue;
+  position: TCoordinates;
+}
+
+export const Tile: React.FC<TileProps> = ({ type, position }) => {
     const [flipped, setFlipped] = useState(false);
   
     const getImage = (type: GridValue) => {
@@ -24,7 +32,11 @@ export const Tile: React.FC<{ type: GridValue }> = ({ type }) => {
         default: return backImage;
       }
     };
-  
+
+    const handleClick = () => {
+      (window as TMouseEmitter).__mouseListener?.emit(position);
+    };
+
     useEffect(() => {
         setFlipped(true);
         const timer = setTimeout(() => setFlipped(false), 50);
@@ -32,7 +44,7 @@ export const Tile: React.FC<{ type: GridValue }> = ({ type }) => {
     }, [type]);
   
     return (
-      <div className="tile">
+      <div className="tile" onClick={handleClick}>
         <div className={`tileInner ${flipped ? 'tileFlipped' : ''}`}>
           <div className="front" style={{ backgroundImage: `url(${getImage(type)})` }} />
           <div className="back" style={{ backgroundImage: `url(${getImage('back')})` }} />

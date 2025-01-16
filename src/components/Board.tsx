@@ -11,11 +11,16 @@ export const Board: React.FC<BoardProps> = ({ grid }) => {
     gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
     gridTemplateRows: `repeat(${gridSize}, 1fr)`,
   };
+
   return (
     <div className="board" style={boardStyle}>
       {grid.map((row, rowIndex) =>
         row.map((type, columnIndex) => (
-          <Tile key={`${rowIndex}-${columnIndex}`} type={type} />
+          <Tile 
+            key={`${rowIndex}-${columnIndex}`}
+            type={type}
+            position={{ x: columnIndex, y: rowIndex }}
+          />
         ))
       )}
     </div>

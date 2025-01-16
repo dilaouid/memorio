@@ -44,6 +44,7 @@ declare global {
         | { type: 'SET_HARD_MODE' }
         | { type: 'SET_SLOW_MODE' }
         | { type: "PLAY_SOUND"; audioUrl: string }
+        | { type: "TILE_CLICK"; position: { x: number; y: number } }
         | { type: 'REMOVE_POPUP'; id: string };
 
 
