@@ -13,6 +13,7 @@ import { getArrowForPathSegment, setInitialDemoIndex } from "@utils/gameUtils";
 import { MuteMusic } from "@components/MuteMusic";
 import { Difficulty } from "@components/Difficulty";
 import { Score } from "@components/Score";
+import { sounds } from "@assets/sfx/sounds";
 
 interface GameProps {
   playBGMGame: () => void;
@@ -95,7 +96,7 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
           } else {
             setTimeout(() => {
               send({ type: "DEMO_END" });
-              send({ type: "PLAY_SOUND", audioUrl: "/memorio/src/assets/sfx/start.wav" });
+              send({ type: "PLAY_SOUND", audioUrl: sounds.start });
             }, demoDelay + demoDelay / 5);
           }
         } else {

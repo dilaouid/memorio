@@ -1,3 +1,4 @@
+import { sounds } from "@assets/sfx/sounds";
 import { fromCallback } from "xstate";
 
 const env = import.meta.env;
@@ -59,7 +60,7 @@ export const keyboardListener = fromCallback(({ input, sendBack }) => {
         )
             return;
 
-        sendBack({ type: "PLAY_SOUND", audioUrl: "/memorio/src/assets/sfx/flip.wav" });
+        sendBack({ type: "PLAY_SOUND", audioUrl: sounds.flip });
         sendBack({ 
             type: "MOVE", 
             direction, 

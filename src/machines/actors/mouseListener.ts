@@ -1,3 +1,4 @@
+import { sounds } from "@assets/sfx/sounds";
 import { fromCallback } from "xstate";
 const env = import.meta.env;
 
@@ -43,7 +44,7 @@ export const mouseListener = fromCallback(({ input, sendBack }) => {
 
     sendBack({
       type: "PLAY_SOUND",
-      audioUrl: "/memorio/src/assets/sfx/flip.wav",
+      audioUrl: sounds.flip,
     });
     sendBack({
       type: "MOVE",
