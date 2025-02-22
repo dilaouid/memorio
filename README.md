@@ -42,7 +42,7 @@ After a sequence of arrows lights up on a grid, it's your turn to memorize and t
 
 ### Play Now
 
-Experience Memorio [here](https://dilaouid.github.io/memorio/).
+Experience Memorio [here](https://memorio.dilaouid.fr/).
 
 ### Installation and Setup
 
