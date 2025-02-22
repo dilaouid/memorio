@@ -24,8 +24,6 @@ Ready to see how far your memory can take you? Dive into Memorio and set new hig
 - **Score Tracking:** Aim for high scores by efficiently completing paths.
 - **Sound Effects:** Engaging sounds for starting, flipping, validating, or invalidating moves.
 
-**Note:** Memorio is optimized for keyboard interaction, not suitable for mobile or touch devices.
-
 ### Gameplay
 
 After a sequence of arrows lights up on a grid, it's your turn to memorize and trace the path. Success leads to more challenging rounds, while mistakes introduce penalties.
@@ -40,11 +38,11 @@ After a sequence of arrows lights up on a grid, it's your turn to memorize and t
 - `VITE_HARDCORE_DELAY=150`: Hardcore mode demo phase duration.
 - `VITE_PENALTY_PERCENT=25`: Penalty percentage after a failure.
 
-### Play Now
+### Play now
 
 Experience Memorio [here](https://memorio.dilaouid.fr/).
 
-### Installation and Setup
+### Installation and setup
 
 1. Clone the repository.
 2. Install dependencies using `npm install`.
@@ -59,11 +57,11 @@ Experience Memorio [here](https://memorio.dilaouid.fr/).
 - `src/machines/gameMachine.ts`: State management using XState for game flow.
 - `src/utils/gameUtils.ts`: Utility functions for game logic, including path generation and move validation.
 
-#### Adding New Features
+#### Adding new features
 
 To add new features, such as additional game modes or UI enhancements, you might start by introducing new states and transitions within the game machine (`src/machines/gameMachine.ts`). For instance, adding a "challenge mode" could involve creating new states for timed rounds, and integrating these within the existing state machine logic.
 
-### Development Tips
+### Development tips
 
 - **State Management:** Familiarize yourself with XState documentation to effectively work with the state machine.
 - **React and TypeScript:** Leverage React functional components and TypeScript for type safety and component reusability.
