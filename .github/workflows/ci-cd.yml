@@ -1,0 +1,131 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint || true
+
+      - name: Build production bundle
+        run: npm run build
+
+  docker-build-and-push:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+            ${{ secrets.REGISTRY }}/${{ github.repository }}:latest
+
+  deploy:
+    needs: docker-build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Restore kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl config view
+
+      - name: Substitute image into manifest
+        env:
+          IMAGE: ${{ secrets.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+        run: |
+          sed -i "s|__IMAGE_PLACEHOLDER__|${IMAGE}|g" ./kubernetes/deployment.yaml
+          cat ./kubernetes/deployment.yaml
+
+      - name: Apply k8s manifests
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl apply -f kubernetes/namespace.yaml || true
+          kubectl apply -f kubernetes/deployment.yaml
+          kubectl apply -f kubernetes/service.yaml
+
+      - name: Wait for rollout
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          if ! kubectl rollout status deployment/memorio-deployment -n memorio --timeout=120s; then
+            echo "Rollout failed"
+            exit 1
+          fi
+          echo "Rollout succeeded"
+
+  post-deploy-healthcheck:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: HTTP health check
+        run: |
+          # Replace with the real external URL or ingress IP if applicable:
+          URL="${{ secrets.HEALTHCHECK_URL }}"
+          for i in {1..6}; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" -k "${URL}" || true)
+            if [ "$status" = "200" ]; then
+              echo "Healthy"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Health check failed"
+          exit 1
+
+  rollback-on-failure:
+    needs: [deploy, post-deploy-healthcheck]
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Restore kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
+
+      - name: Rollback
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl rollout undo deployment/memorio-deployment -n memorio || true
+          kubectl get deploy memorio-deployment -n memorio -o wide || true

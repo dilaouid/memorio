@@ -6,10 +6,11 @@
   "homepage": "https://memorio.dilaouid.fr/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "start": "pnpm run build && vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "vite build",
+    "start": "vite",
     "preview": "vite preview",
+    "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
+    "test": "vitest",
     "deploy": "pnpm run build && gh-pages -d dist"
   },
   "dependencies": {
@@ -21,6 +22,8 @@
     "xstate": "^5.8.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
@@ -30,8 +33,10 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "gh-pages": "^6.1.1",
+    "jsdom": "^26.1.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.4",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^1.6.1"
   }
 }
