@@ -11,6 +11,8 @@ import { setSlowModeAssign } from "./setSlowMode";
 import { playSoundAssign } from "./playSound";
 import { playStatusSound } from "./playStatusSound";
 import { handleFlipEnd } from "./handleFlipEnd";
+import { newGameAssign } from "./newGame";
+import { saveBestScoreAssign } from "./saveBestScore";
 
 export const actions = {
     setup: setupGameAssign,
@@ -25,5 +27,7 @@ export const actions = {
     setSlowMode: setSlowModeAssign,
     playSound: playSoundAssign,
     playStatusSound: playStatusSound,
-    handleFlipEnd: handleFlipEnd
+    handleFlipEnd: handleFlipEnd,
+    newGame: newGameAssign,
+    saveBestScore: saveBestScoreAssign
 }

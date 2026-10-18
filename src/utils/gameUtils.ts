@@ -23,13 +23,14 @@ export const generateInitialGrid = (path: {x: number, y: number}[]): ('back' | '
  * @param pathLength La longueur du chemin à générer
  * @returns Le chemin généré sous forme d'une liste de coordonnées {x, y}
 */
-export const generatePath = (pathLength: number): {x: number, y: number}[] => {
-    // on commence par faire le start du chemin
-    const start = Math.floor(Math.random() * gridLength);
-    const path = [{x: start, y: start}];
+const tryGeneratePath = (pathLength: number): {x: number, y: number}[] => {
+    // on commence par faire le start du chemin, n'importe où sur la grille
+    const startX = Math.floor(Math.random() * gridLength);
+    const startY = Math.floor(Math.random() * gridLength);
+    const path = [{x: startX, y: startY}];
   
     // Générer un chemin aléatoire
-    let currentX: number = start, currentY = start;
+    let currentX: number = startX, currentY = startY;
   
     const getValidMoves = (currentX: number, currentY: number, path: {x: number, y: number}[]) => {
       const directions = [
@@ -62,6 +63,20 @@ export const generatePath = (pathLength: number): {x: number, y: number}[] => {
     }
   
     return path;
+};
+
+/**
+ * Génère un chemin de la longueur demandée (on réessaie si la marche aléatoire s'est bloquée)
+ * @param pathLength La longueur du chemin à générer
+ * @returns Le chemin le plus long obtenu, idéalement de longueur pathLength
+*/
+export const generatePath = (pathLength: number): {x: number, y: number}[] => {
+    let best = tryGeneratePath(pathLength);
+    for (let attempt = 0; attempt < 50 && best.length < pathLength; attempt++) {
+        const candidate = tryGeneratePath(pathLength);
+        if (candidate.length > best.length) best = candidate;
+    }
+    return best;
 };
   
 /**
@@ -104,10 +119,11 @@ export const calculateScore = (context: { score: number, currentPath: { x: numbe
 
   const endTime = new Date();
   const timeTaken = (endTime.getTime() - context.startRoundTime.getTime()) / 1000;
-  const timeLimit = 10;
   const pathLengthFactor = Math.max(context.currentPath.length, 1);
 
-  let newScore = Math.max((timeLimit - timeTaken) * (100 / timeLimit) / 2, 0);
+  // a small base reward for completing the path, plus a speed bonus
+  const speedBonus = Math.max(ROUND_TIME_LIMIT - timeTaken, 0) * (100 / ROUND_TIME_LIMIT) / 2;
+  let newScore = 10 + speedBonus;
   newScore *= pathLengthFactor * factor;
   return Math.floor(newScore);
 }
@@ -116,7 +132,7 @@ export const isValidMove = (context: { currentIndex: number, pathLength: number,
   if (event.nextPosition.x >= gridLength || event.nextPosition.x < 0 || event.nextPosition.y >= gridLength || event.nextPosition.y < 0) {
     return false;
   }
-  return context.currentIndex + 1 < context.pathLength && 
+  return context.currentIndex + 1 < context.currentPath.length && 
     event.nextPosition.x === context.currentPath[context.currentIndex + 1].x && 
     event.nextPosition.y === context.currentPath[context.currentIndex + 1].y;
 }
@@ -124,8 +140,37 @@ export const isValidMove = (context: { currentIndex: number, pathLength: number,
 export const setInitialDemoIndex = (context: { currentPath: { x: number; y: number }[], isHardcoreMode: boolean, pathLength: number }): number => {
   // if it's hardcore mode, we start at the end of the path
   if (context.isHardcoreMode) {
-    return context.pathLength - 1;
+    return context.currentPath.length - 1;
   } else {
     return 1;
   }
 }
+
+export const MAX_LIVES = 3;
+export const ROUND_TIME_LIMIT = 10; // seconds during which a faster answer earns more points
+
+// Each consecutive perfect round adds +25% to the gains, up to x3.
+export const getStreakMultiplier = (streak: number): number => 1 + Math.min(streak, 8) * 0.25;
+
+// Pixel offset of a tile inside the play area (board border + tile with its border + grid gap).
+const BOARD_BORDER = 10;
+const TILE_STEP = 83;
+export const tileOffset = (index: number): string => `${BOARD_BORDER + index * TILE_STEP + 12}px`;
+
+const BEST_SCORE_KEY = "memorio:best-score";
+
+export const loadBestScore = (): number => {
+  try {
+    return Number(localStorage.getItem(BEST_SCORE_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+export const saveBestScore = (score: number): void => {
+  try {
+    localStorage.setItem(BEST_SCORE_KEY, String(score));
+  } catch {
+    // storage unavailable (private mode...), the best score just won't persist
+  }
+};

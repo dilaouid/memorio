@@ -45,6 +45,7 @@ export const mouseListener = fromCallback(({ input, sendBack }) => {
     sendBack({
       type: "PLAY_SOUND",
       audioUrl: sounds.flip,
+      rate: 1 + currentIndex * 0.06,
     });
     sendBack({
       type: "MOVE",

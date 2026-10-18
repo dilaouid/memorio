@@ -21,18 +21,30 @@ export const keyboardListener = fromCallback(({ input, sendBack }) => {
 
         switch (event.key) {
             case "ArrowLeft":
+            case "a":
+            case "A":
+            case "q":
+            case "Q":
                 direction = "left";
                 moveDirection = { x: -1, y: 0 };
                 break;
             case "ArrowRight":
+            case "d":
+            case "D":
                 direction = "right";
                 moveDirection = { x: 1, y: 0 };
                 break;
             case "ArrowUp":
+            case "w":
+            case "W":
+            case "z":
+            case "Z":
                 direction = "top";
                 moveDirection = { x: 0, y: -1 };
                 break;
             case "ArrowDown":
+            case "s":
+            case "S":
                 direction = "bottom";
                 moveDirection = { x: 0, y: 1 };
                 break;
@@ -60,7 +72,7 @@ export const keyboardListener = fromCallback(({ input, sendBack }) => {
         )
             return;
 
-        sendBack({ type: "PLAY_SOUND", audioUrl: sounds.flip });
+        sendBack({ type: "PLAY_SOUND", audioUrl: sounds.flip, rate: 1 + currentIndex * 0.06 });
         sendBack({ 
             type: "MOVE", 
             direction, 

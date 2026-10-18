@@ -6,6 +6,7 @@ declare global {
         score: number;
         top: string;
         left: string;
+        label?: string;
     };
 
     interface GameContext {
@@ -14,6 +15,10 @@ declare global {
         currentIndex: number;
         isDemoPlaying: boolean;
         score: number;
+        bestScore: number;
+        lives: number;
+        streak: number;
+        level: number;
         pathLength: number;
         demoDelay: number;
         status: LampStatus;
@@ -32,6 +37,8 @@ declare global {
 
     type GameEvent =
         | { type: 'START' }
+        | { type: 'RESTART' }
+        | { type: 'BACK_TO_MENU' }
         | { type: 'DEMO_END' }
         | { type: 'MOVE'; direction: GridValue; nextPosition: { x: number; y: number } }
         | { type: "TILE_FLIP_END"; x: number; y: number }
@@ -43,7 +50,7 @@ declare global {
         | { type: 'MUTE' }
         | { type: 'SET_HARD_MODE' }
         | { type: 'SET_SLOW_MODE' }
-        | { type: "PLAY_SOUND"; audioUrl: string }
+        | { type: "PLAY_SOUND"; audioUrl: string; rate?: number }
         | { type: "TILE_CLICK"; position: { x: number; y: number } }
         | { type: 'REMOVE_POPUP'; id: string };
 
