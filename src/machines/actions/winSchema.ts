@@ -1,11 +1,14 @@
-import { calculateScore } from "@utils/gameUtils";
+import { calculateScore, getStreakMultiplier, MAX_LIVES, tileOffset } from "@utils/gameUtils";
 
-const PATH_LENGTH_MAX = import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX as number;
-const PATH_LENGTH_HARDCORE_MAX = import.meta.env.VITE_HARDCORE_PATHLENGTH_MAX as number;
+const PATH_LENGTH_MAX = Number(import.meta.env.VITE_DEFAUT_PATHLENGTH_MAX);
+const PATH_LENGTH_HARDCORE_MAX = Number(import.meta.env.VITE_HARDCORE_PATHLENGTH_MAX);
+
+// Every STREAK_FOR_LIFE perfect rounds in a row, the player gets a life back.
+const STREAK_FOR_LIFE = 5;
 
 const newDifficulty = (context: GameContext) => {
     const maxPathLength = context.isHardcoreMode ? PATH_LENGTH_HARDCORE_MAX : PATH_LENGTH_MAX;
-    return Math.min(context.pathLength + 1, maxPathLength as number)
+    return Math.min(context.pathLength + 1, maxPathLength)
 };
 
 const calculateDemoDelay = (context: GameContext, random: number) => {
@@ -26,18 +29,31 @@ const calculateDemoDelay = (context: GameContext, random: number) => {
 };
 
 export const winSchemaAssign = (context: GameContext) => {
-    const gainedPoints = calculateScore(context);
+    const streak = context.streak + 1;
+    const multiplier = getStreakMultiplier(context.streak);
+    const gainedPoints = Math.floor(calculateScore(context) * multiplier);
+    const earnsLife = streak % STREAK_FOR_LIFE === 0 && context.lives < MAX_LIVES;
+    const lastPosition = context.currentPath[context.currentPath.length - 1];
+
+    let label: string | undefined;
+    if (earnsLife) label = "+1 VALVE";
+    else if (multiplier > 1) label = `COMBO x${multiplier}`;
+
     const newPopup: ScorePopupProps = {
         id: `${new Date().getTime()}`,
         score: gainedPoints,
-        // Below, we're using the current path index to determine the position of the score popup.
-        top: `${context.currentPath[context.currentPath.length - 1].y * 100}px`,
-        left: `${context.currentPath[context.currentPath.length - 1].x * 100}px`
+        label,
+        // Below, we're using the last tile of the path to determine the position of the score popup.
+        top: tileOffset(lastPosition.y),
+        left: tileOffset(lastPosition.x)
     };
     const random = Math.random();
     return {
         popups: [...context.popups, newPopup],
         score: context.score + gainedPoints,
+        streak,
+        level: context.level + 1,
+        lives: earnsLife ? context.lives + 1 : context.lives,
 
         // pathLength will MAYBE be increased by 1
         pathLength: random < 0.3 ? context.pathLength : newDifficulty(context),

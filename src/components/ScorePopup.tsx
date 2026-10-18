@@ -1,23 +1,13 @@
 import React from "react";
 
-const ScorePopup: React.FC<ScorePopupProps> = ({ score, top, left }) => {
-  const color = score > 0 ? "green" : "red";
-  const scoreStyle: React.CSSProperties = {
-    position: "absolute",
-    top,
-    left,
-    color,
-    opacity: 1,
-    transition: "opacity 4s ease-out, top 4s ease-out",
-    fontFamily: '"Press Start 2P", cursive',
-  };
-
+const ScorePopup: React.FC<ScorePopupProps> = ({ score, top, left, label }) => {
   return (
     <div
-      style={scoreStyle}
+      style={{ top, left }}
       className={`score-popup ${score > 0 ? "positive" : "negative"}`}
     >
-      {score > 0 ? `+${score}` : score}
+      {score !== 0 && (score > 0 ? `+${score}` : score)}
+      {label && <span className="score-popup-label">{label}</span>}
     </div>
   );
 };

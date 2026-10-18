@@ -9,17 +9,8 @@ interface MuteMusicProps {
 export const MuteMusic: React.FC<MuteMusicProps> = ({ muteMusic, send }) => {
   return (
     <div
-      className="music-control-icon"
+      className="music-control-icon corner-icon"
       onClick={() => send({ type: "MUTE" })}
-      style={{
-        position: "fixed",
-        bottom: "20px",
-        right: "20px",
-        fontSize: "44px",
-        color: "white",
-        opacity: "0.7",
-        cursor: "pointer",
-      }}
     >
       {muteMusic ? <MdMusicOff /> : <MdMusicNote />}
     </div>

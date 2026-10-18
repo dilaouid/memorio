@@ -13,6 +13,8 @@ import { getArrowForPathSegment, setInitialDemoIndex } from "@utils/gameUtils";
 import { MuteMusic } from "@components/MuteMusic";
 import { Difficulty } from "@components/Difficulty";
 import { Score } from "@components/Score";
+import { PressureGauge } from "@components/PressureGauge";
+import { GameOver } from "@components/GameOver";
 import { sounds } from "@assets/sfx/sounds";
 
 interface GameProps {
@@ -31,6 +33,11 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     currentPath,
     popups,
     score,
+    bestScore,
+    lives,
+    streak,
+    level,
+    startRoundTime,
     demoDelay,
     pathLength,
     startedGame,
@@ -38,8 +45,20 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     isHardcoreMode,
     isSlowMode
   } = state.context;
-  const gridSize = import.meta.env.VITE_GRID_SIZE as number;
+  const isGameOver = state.matches("gameOver");
+  const isMenu = state.matches("menu");
 
+  // Enter starts the game from the menu, or restarts it after a game over.
+  useEffect(() => {
+    if (!isMenu && !isGameOver) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" || event.repeat) return;
+      event.preventDefault();
+      send({ type: isMenu ? "START" : "RESTART" });
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isMenu, isGameOver, send]);
 
   useEffect(() => {
     if (startedGame && !muteMusic) {
@@ -112,21 +131,39 @@ export const Game: React.FC<GameProps> = ({ playBGMGame, stopBGMMenu, stopBGMGam
     <div className="game-container">
       { startedGame && <Difficulty send={send} isHardcoreMode={isHardcoreMode} isSlowMode={isSlowMode} isDemoPlaying={isDemoPlaying} /> }
       <MuteMusic send={send} muteMusic={muteMusic} />
-      { !startedGame && <Menu send={send} /> }
-      { startedGame && <div>
-        <Score isHardcoreMode={isHardcoreMode} isSlowMode={isSlowMode} score={score} />
-        {isDemoPlaying && <div className="demo-blink">DEMO</div>}
-        <Board grid={grid} />
-        {popups.map((popup) => (
-          <ScorePopup
-            key={popup.id}
-            id={popup.id}
-            score={popup.score}
-            top={popup.top}
-            left={popup.left}
-          />
-        ))}
-        <StatusLamp status={status} gridSize={gridSize} />
+      { !startedGame && <Menu send={send} bestScore={bestScore} /> }
+      { startedGame && <div className="play-area">
+        <Score
+          isHardcoreMode={isHardcoreMode}
+          isSlowMode={isSlowMode}
+          score={score}
+          bestScore={bestScore}
+          level={level}
+          lives={lives}
+          streak={streak}
+        />
+        <div className="board-row">
+          <div className={`board-frame status-${status}`}>
+            {isDemoPlaying && <div className="demo-blink">Watch</div>}
+            {status === "yourTurn" && <div className="demo-blink your-turn">Your turn</div>}
+            <Board grid={grid} />
+            {popups.map((popup) => (
+              <ScorePopup
+                key={popup.id}
+                id={popup.id}
+                score={popup.score}
+                label={popup.label}
+                top={popup.top}
+                left={popup.left}
+              />
+            ))}
+          </div>
+          <div className="side-panel">
+            <PressureGauge active={status === "yourTurn"} startRoundTime={startRoundTime} />
+            <StatusLamp status={status} />
+          </div>
+        </div>
+        { isGameOver && <GameOver send={send} score={score} bestScore={bestScore} level={level} /> }
       </div> }
     </div>
   );

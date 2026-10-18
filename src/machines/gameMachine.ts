@@ -1,6 +1,6 @@
 import { assign, setup } from "xstate";
 
-import { isValidMove } from "@utils/gameUtils";
+import { isValidMove, loadBestScore, MAX_LIVES } from "@utils/gameUtils";
 import { actions } from "@machines/actions";
 import { keyboardListener, mouseListener } from "@machines/actors";
 
@@ -36,6 +36,9 @@ export const machine = setup({
     playSound: ({ context, event }) => actions.playSound(context, event),
     playStatusSound: ({ context }) => actions.playStatusSound(context),
     handleFlipEnd: ({ context, event }) => actions.handleFlipEnd(context, event),
+    newGame: assign(({ context }) => actions.newGame(context)),
+    saveBestScore: assign(({ context }) => actions.saveBestScore(context)),
+    backToMenu: assign({ startedGame: false, popups: [] }),
   },
   guards: {
     isCorrectMove: function ({ context, event }) {
@@ -45,6 +48,9 @@ export const machine = setup({
     hasCompletedPath: function ({ context }) {
       return context.currentIndex + 1 === context.currentPath.length;
     },
+    isOutOfLives: function ({ context }) {
+      return context.lives <= 0;
+    },
   },
 }).createMachine({
   context: {
@@ -53,6 +59,10 @@ export const machine = setup({
     currentIndex: 0, // This will be a number representing the current index in the path.
     isDemoPlaying: false,
     score: 0,
+    bestScore: loadBestScore(),
+    lives: MAX_LIVES,
+    streak: 0, // number of perfect rounds in a row, it multiplies the gains
+    level: 1,
     pathLength: Number(env.VITE_DEFAUT_PATHLENGTH), // This will be a number representing the length of the path (used for difficulty).
     demoDelay: Number(env.VITE_DEFAUT_DEMO_DELAY), // This will be a number representing the time for the demo to play (the larger the number, the slower the demo will play).
     status: "demo", // the status for the lamp (demo, playing, success, error).
@@ -98,7 +108,7 @@ export const machine = setup({
     },
     menu: {
       on: {
-        START: { target: "initial" },
+        START: { target: "initial", actions: "newGame" },
       },
     },
     initial: {
@@ -159,20 +169,26 @@ export const machine = setup({
       on: {
         REMOVE_POPUP: { actions: "removeScorePopup" },
       },
-      entry: ["updateGrid", "applyPenalty", "playStatusSound"],
+      entry: ["updateGrid", "applyPenalty", "playStatusSound", "saveBestScore"],
       after: {
         999: { actions: "removeScorePopup" },
-        1000: "initial",
+        1000: [{ target: "gameOver", guard: "isOutOfLives" }, { target: "initial" }],
       },
     },
     completePath: {
       on: {
         REMOVE_POPUP: { actions: "removeScorePopup" },
       },
-      entry: ["winSchema", "playStatusSound"],
+      entry: ["winSchema", "playStatusSound", "saveBestScore"],
       after: {
         999: { actions: "removeScorePopup" },
         1000: "initial",
+      },
+    },
+    gameOver: {
+      on: {
+        RESTART: { target: "initial", actions: "newGame" },
+        BACK_TO_MENU: { target: "menu", actions: "backToMenu" },
       },
     },
   },

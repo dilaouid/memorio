@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-import startImage from '@assets/tiles/start.jpg';
-import leftImage from '@assets/tiles/left.jpg';
-import rightImage from '@assets/tiles/right.jpg';
-import topImage from '@assets/tiles/top.jpg';
-import bottomImage from '@assets/tiles/bottom.jpg';
-import backImage from '@assets/tiles/back.jpg';
-import failImage from '@assets/tiles/fail.jpg';
-import successImage from '@assets/tiles/success.jpg';
+import startImage from '@assets/tiles/start.svg';
+import leftImage from '@assets/tiles/left.svg';
+import rightImage from '@assets/tiles/right.svg';
+import topImage from '@assets/tiles/top.svg';
+import bottomImage from '@assets/tiles/bottom.svg';
+import backImage from '@assets/tiles/back.svg';
+import failImage from '@assets/tiles/fail.svg';
+import successImage from '@assets/tiles/success.svg';
 
 type TCoordinates = { x: number; y: number };
 type TMouseEmitter = { __mouseListener?: { emit: (pos: TCoordinates) => void } }

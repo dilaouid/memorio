@@ -1,7 +1,11 @@
 @keyframes slideDownBounce {
   0% {
-    transform: translateY(-100%);
+    transform: translateY(-60px);
     opacity: 0;
+  }
+  70% {
+    transform: translateY(6px);
+    opacity: 1;
   }
   100% {
     transform: translateY(0);
@@ -9,18 +13,9 @@
   }
 }
 
-.logo {
-  animation: slideDownBounce 1.5s ease forwards;
-  position: absolute;
-  top: -350px;
-  margin-left: -270px;
-  width: 550px;
-  z-index: 3;
-}
-
 @keyframes zoomFadeIn {
   from {
-    transform: scale(0);
+    transform: scale(0.85);
     opacity: 0;
   }
   to {
@@ -29,64 +24,106 @@
   }
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-.how-to-play,
-.tile-behind,
-.tile-front {
-  animation: zoomFadeIn 1.9s ease forwards;
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 24px 16px;
+  z-index: 5;
 }
 
-.tile-front:last-child {
-  animation: float 2s ease-in-out infinite;
+.logo {
+  animation: slideDownBounce 1.2s ease forwards;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  font-family: "Cinzel Decorative", serif;
+  font-weight: 900;
+  font-size: clamp(44px, 9vw, 96px);
+  letter-spacing: 2px;
+  background: linear-gradient(180deg, var(--brass-hi) 0%, var(--brass) 45%, var(--brass-low) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 0 #1a0a04) drop-shadow(0 0 24px rgba(94, 200, 255, 0.35));
 }
 
-.tile-behind,
-.tile-front {
-  box-shadow: 0 0 125px rgba(177, 118, 41, 0.19);
+.logo-gear {
+  width: 0.7em;
+  height: 0.7em;
+  animation: spin 9s linear infinite;
 }
 
-.tile-front {
-  box-shadow: 0 0 125px rgba(255, 220, 175, 0.19);
+.logo-gear.reverse {
+  animation-direction: reverse;
 }
 
-.button {
-  margin-top: 200px;
-  position: absolute;
-  margin-left: -190px;
+.tagline {
+  margin: -12px 0 0;
+  font-family: "Cinzel", serif;
+  color: var(--blue);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(94, 200, 255, 0.7);
+}
+
+.how-to-play {
+  animation: zoomFadeIn 0.9s ease forwards;
+  max-width: 620px;
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.step-lamp {
+  height: 70px;
+  width: 52px;
+  object-fit: contain;
+}
+
+.step-tiles {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.step-tiles img {
+  width: 34px;
+  height: 34px;
+}
+
+.step-icon {
+  width: 52px;
+  text-align: center;
+  font-size: 40px;
+  color: var(--brass);
+  flex-shrink: 0;
+  animation: spin 6s linear infinite;
 }
 
 .start-button {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  cursor: pointer;
-  position: absolute;
-  margin-left: -385px;
-  transition: 0.3s;
-  z-index: 4;
-}
-
-.start-button:hover {
-  transform: scale(0.9);
-  opacity: 0.8;
-  filter: hue-rotate(70deg);
-  transition: 0.3s;
-}
-
-.how-to-play-section {
-  position: absolute;
-  top: -250px;
-  margin-left: -370px;
-  z-index: 2;
-}
-
-.how-to-play-section img {
-  width: 820px;
+  font-size: 22px;
+  padding: 16px 40px;
+  animation: zoomFadeIn 1.2s ease forwards;
 }
